@@ -1,0 +1,26 @@
+{
+  "id": "amenity-reservations",
+  "name": "Amenity Reservations",
+  "version": "1.0.0",
+  "description": "Reserve shared facilities — pool, clubhouse, courts, BBQ. Board configures amenities, booking windows, usage limits, and approval requirements.",
+  "entrypoint": "index.html",
+  "runtime": "static",
+  "category": "organization",
+  "tags": ["amenities", "reservations", "booking", "hoa", "facilities"],
+  "icon": "🏊",
+  "storage": "db",
+  "data_access": {
+    "reads": ["family.members", "family.groups"],
+    "writes": []
+  },
+  "permissions": {
+    "default_audience": "everyone",
+    "requires_approval": false
+  },
+  "nav": { "label": "Amenities" },
+  "ai_access": {
+    "allowed": true,
+    "mode": "read",
+    "db_exports": ["upcoming_reservations", "amenity_availability"]
+  }
+}

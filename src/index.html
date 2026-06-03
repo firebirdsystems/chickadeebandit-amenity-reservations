@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Amenity Reservations</title>
+  <base href="/run/amenity-reservations/" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:           var(--hub-bg, #f9fafb);
+      --card:         var(--hub-surface, #ffffff);
+      --border:       var(--hub-border, #e5e7eb);
+      --text:         var(--hub-text, #111827);
+      --muted:        var(--hub-text-muted, #6b7280);
+      --accent:       var(--hub-primary, #111827);
+      --accent-fg:    var(--hub-primary-fg, #ffffff);
+      --accent-hover: var(--hub-primary-hover, #374151);
+      --radius:       var(--hub-radius, 0.5rem);
+      --shadow:       0 1px 3px rgba(0,0,0,.07);
+    }
+
+    body {
+      font-family: var(--hub-font, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+      background: var(--bg); color: var(--text);
+      min-height: 100vh; font-size: var(--hub-font-size, 15px); line-height: 1.5;
+    }
+    .app { max-width: 640px; margin: 0 auto; padding: 16px; }
+
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px; padding: 14px 18px;
+      background: var(--accent); border-radius: var(--radius); color: white;
+    }
+    header h1 { font-size: 1.1rem; font-weight: 700; margin-bottom: 1px; }
+    header .sub { font-size: 0.75rem; opacity: .7; }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 16px; border-radius: 8px;
+      font-size: 0.875rem; font-weight: 600; cursor: pointer; border: none; transition: opacity .15s;
+    }
+    .btn:disabled { opacity: .5; cursor: default; }
+    .btn-primary  { background: var(--accent); color: var(--accent-fg); }
+    .btn-primary:hover:not(:disabled) { opacity: .88; }
+    .btn-ghost    { background: transparent; color: var(--muted); border: 1.5px solid var(--border); }
+    .btn-ghost:hover:not(:disabled) { border-color: var(--text); color: var(--text); }
+    .btn-danger   { background: #dc2626; color: white; }
+    .btn-danger:hover:not(:disabled) { opacity: .88; }
+    .btn-success  { background: #16a34a; color: white; }
+    .btn-success:hover:not(:disabled) { opacity: .88; }
+    .btn-icon     { background: rgba(255,255,255,.2); color: white; border: none; font-size: 1rem; padding: 6px 12px; border-radius: 8px; cursor: pointer; }
+    .btn-icon:hover { background: rgba(255,255,255,.3); }
+    .btn-sm       { padding: 5px 12px; font-size: 0.8rem; }
+
+    .tabs {
+      display: flex; gap: 4px; margin-bottom: 16px;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 4px;
+    }
+    .tab {
+      flex: 1; padding: 7px 6px; border-radius: calc(var(--radius) - 2px);
+      border: none; background: transparent;
+      font-size: 0.82rem; font-weight: 600; cursor: pointer; color: var(--muted); transition: all .15s;
+      white-space: nowrap;
+    }
+    .tab.active { background: var(--accent); color: var(--accent-fg); }
+    .tab:hover:not(.active) { color: var(--text); }
+    .badge-count {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 17px; height: 17px; border-radius: 50%;
+      font-size: 0.68rem; font-weight: 700; background: #ef4444; color: white; margin-left: 4px;
+    }
+
+    .card {
+      background: var(--card); border: 1.5px solid var(--border);
+      border-radius: var(--radius); padding: 16px;
+      box-shadow: var(--shadow); margin-bottom: 12px;
+    }
+
+    .amenity-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; margin-bottom: 4px; }
+    .amenity-card {
+      background: var(--card); border: 1.5px solid var(--border);
+      border-radius: var(--radius); padding: 16px;
+      box-shadow: var(--shadow); cursor: pointer; transition: border-color .15s, box-shadow .15s;
+      display: flex; flex-direction: column; gap: 5px;
+    }
+    .amenity-card:hover { border-color: var(--accent); box-shadow: 0 2px 8px rgba(0,0,0,.1); }
+    .amenity-icon { font-size: 2rem; line-height: 1.1; }
+    .amenity-name { font-weight: 700; font-size: 0.95rem; }
+    .amenity-loc  { font-size: 0.78rem; color: var(--muted); }
+    .amenity-avail { font-size: 0.78rem; font-weight: 600; margin-top: 3px; }
+    .avail-ok     { color: #16a34a; }
+    .avail-limited { color: #d97706; }
+    .avail-full   { color: #dc2626; }
+
+    .badge {
+      display: inline-flex; align-items: center;
+      padding: 3px 10px; border-radius: 12px;
+      font-size: 0.78rem; font-weight: 600; white-space: nowrap;
+    }
+    .badge-green  { background: #dcfce7; color: #166534; }
+    .badge-yellow { background: #fef9c3; color: #854d0e; }
+    .badge-red    { background: #fee2e2; color: #991b1b; }
+    .badge-gray   { background: #f3f4f6; color: #4b5563; }
+    .badge-blue   { background: #dbeafe; color: #1e40af; }
+
+    .res-card { background: var(--card); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 14px 16px; box-shadow: var(--shadow); margin-bottom: 10px; }
+    .res-top  { display: flex; align-items: flex-start; gap: 12px; }
+    .res-icon { font-size: 1.5rem; flex-shrink: 0; line-height: 1.3; }
+    .res-info { flex: 1; min-width: 0; }
+    .res-name { font-weight: 700; font-size: 0.92rem; }
+    .res-time { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+    .res-footer { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-top: 8px; }
+    .res-notes  { font-size: 0.8rem; color: var(--muted); margin-top: 6px; font-style: italic; }
+
+    .avatar { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; color: white; flex-shrink: 0; }
+
+    .back-btn { background: none; border: none; cursor: pointer; font-size: 0.82rem; color: var(--muted); padding: 0; margin-bottom: 14px; display: inline-flex; align-items: center; gap: 4px; }
+    .back-btn:hover { color: var(--text); }
+
+    .detail-header { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 10px; }
+    .detail-icon   { font-size: 2.4rem; line-height: 1; flex-shrink: 0; }
+    .detail-title  { font-size: 1.15rem; font-weight: 700; }
+    .detail-meta   { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+    .detail-desc   { font-size: 0.88rem; color: var(--muted); margin-top: 8px; }
+
+    .rules-box { background: #f9fafb; border: 1px solid var(--border); border-radius: 8px; padding: 11px 14px; margin: 12px 0 0; font-size: 0.82rem; }
+    .rules-box dt { font-weight: 700; color: var(--text); }
+    .rules-row { display: flex; gap: 6px; margin-bottom: 3px; }
+    .rules-row:last-child { margin-bottom: 0; }
+
+    .date-nav { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .date-nav-btn { background: var(--card); border: 1.5px solid var(--border); border-radius: 8px; padding: 5px 12px; cursor: pointer; font-size: 0.95rem; color: var(--text); transition: border-color .15s; }
+    .date-nav-btn:hover:not(:disabled) { border-color: var(--accent); }
+    .date-nav-btn:disabled { opacity: .4; cursor: default; }
+    .date-label { font-weight: 700; font-size: 0.92rem; flex: 1; text-align: center; }
+    .date-input-row { margin-bottom: 12px; }
+    .date-input { width: 100%; border: 1.5px solid var(--border); border-radius: 8px; padding: 7px 12px; font-size: 0.9rem; font-family: inherit; outline: none; background: white; }
+    .date-input:focus { border-color: var(--accent); }
+
+    .timeline { border-top: 1px solid var(--border); }
+    .timeline-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); }
+    .timeline-time { font-size: 0.8rem; color: var(--muted); width: 110px; flex-shrink: 0; }
+    .timeline-empty { font-size: 0.85rem; color: var(--muted); padding: 14px 0; text-align: center; }
+
+    .section-title { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 10px; }
+
+    .form-group { margin-bottom: 14px; }
+    .form-group label { display: block; font-size: 0.78rem; font-weight: 700; color: var(--muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: .04em; }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%; border: 1.5px solid var(--border); border-radius: 8px;
+      padding: 8px 12px; font-size: 0.9rem; outline: none; transition: border-color .15s;
+      background: white; font-family: inherit; color: inherit;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--accent); }
+    .form-group textarea { resize: vertical; min-height: 60px; }
+    .form-row { display: flex; gap: 10px; }
+    .form-row > * { flex: 1; min-width: 0; }
+    .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; }
+    .toggle-row span { font-size: 0.9rem; font-weight: 600; }
+    input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent); flex-shrink: 0; }
+
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: flex; align-items: flex-end; justify-content: center; z-index: 100; }
+    @media (min-width: 480px) { .modal-backdrop { align-items: center; padding: 20px; } }
+    .modal { background: white; border-radius: var(--radius) var(--radius) 0 0; width: 100%; max-width: 520px; padding: 22px; max-height: 92vh; overflow-y: auto; }
+    @media (min-width: 480px) { .modal { border-radius: var(--radius); } }
+    .modal h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 16px; }
+    .modal-actions { display: flex; gap: 8px; margin-top: 18px; flex-wrap: wrap; }
+    .modal-actions .btn { flex: 1; justify-content: center; min-width: 90px; }
+    .error-msg { color: #dc2626; font-size: 0.82rem; margin-top: 6px; min-height: 18px; }
+
+    .admin-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+    .admin-row:last-child { border-bottom: none; }
+    .admin-row-icon { font-size: 1.4rem; flex-shrink: 0; }
+    .admin-row-info { flex: 1; min-width: 0; }
+    .admin-row-name { font-weight: 700; font-size: 0.9rem; }
+    .admin-row-meta { font-size: 0.78rem; color: var(--muted); margin-top: 1px; }
+    .admin-row-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+    .pending-actions { display: flex; gap: 8px; margin-top: 10px; }
+    .member-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+    .date-group-label { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 14px 0 8px; }
+    .date-group-label:first-child { margin-top: 0; }
+
+    .empty   { text-align: center; padding: 36px 16px; color: var(--muted); font-size: 0.9rem; }
+    .loading { text-align: center; padding: 40px; color: var(--muted); }
+  </style>
+</head>
+<body>
+<div class="app">
+  <div id="root"><div class="loading">Loading…</div></div>
+</div>
+<script type="module">
+import { memberColor, initial, esc, isAdult, hubConfirm } from "/hub-sdk.js";
+import {
+  isBoard as _isBoard, timesToMinutes, durationHours,
+  hasConflict, isWithinLimits, isWithinBookingWindow,
+} from "./logic.js";
+
+const CONTEXT = window.__CONTEXT_URL ?? "";
+const DB      = window.__DB_URL      ?? "";
+const ME      = window.__CURRENT_MEMBER ?? null;
+const APP_ID  = window.__APP_ID ?? "amenity-reservations";
+
+let members      = [];
+let groups       = [];
+let settings     = { board_group_id: "" };
+let amenities    = [];
+let reservations = [];
+let memberMap    = new Map();
+let amenityMap   = new Map();
+let view         = "amenities";
+let selectedAmenity = null;
+let detailDate   = todayStr();
+let modalEl      = null;
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+function todayStr() { return new Date().toISOString().slice(0, 10); }
+
+function addDays(dateStr, n) {
+  const d = new Date(dateStr + "T12:00:00");
+  d.setDate(d.getDate() + n);
+  return d.toISOString().slice(0, 10);
+}
+
+function fmtDate(d) {
+  return new Date(d + "T12:00:00").toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+}
+
+function fmtTime(t) {
+  const [h, m] = t.split(":").map(Number);
+  return `${h % 12 || 12}:${String(m).padStart(2, "0")} ${h >= 12 ? "PM" : "AM"}`;
+}
+
+function amIBoard() { return _isBoard(ME, groups, settings.board_group_id); }
+
+function memberName(id) { return memberMap.get(id)?.name ?? "Unknown"; }
+
+function statusBadge(s) {
+  if (s === "confirmed") return `<span class="badge badge-green">Confirmed</span>`;
+  if (s === "pending")   return `<span class="badge badge-yellow">Pending Approval</span>`;
+  if (s === "cancelled") return `<span class="badge badge-gray">Cancelled</span>`;
+  if (s === "denied")    return `<span class="badge badge-red">Denied</span>`;
+  return "";
+}
+
+function timeSlots(from = "07:00", to = "22:00") {
+  const slots = [];
+  let [h, m] = from.split(":").map(Number);
+  const [eh, em] = to.split(":").map(Number);
+  while (h * 60 + m <= eh * 60 + em) {
+    slots.push(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
+    m += 30;
+    if (m >= 60) { h++; m = 0; }
+  }
+  return slots;
+}
+
+// ── DB ────────────────────────────────────────────────────────────────────────
+
+async function db(sql, params = []) {
+  if (!DB) return { rows: [] };
+  const res = await fetch(DB, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ sql, params }),
+  });
+  return res.json();
+}
+
+// ── Demo data ─────────────────────────────────────────────────────────────────
+
+const DEMO_AMENITIES = [
+  { id: "d1", name: "Pool", icon: "🏊", location: "Building A", description: "Outdoor heated pool. Open 6 AM–10 PM. Towels not provided.", capacity: 0, booking_window_days: 30, max_duration_hours: 3, min_duration_hours: 0.5, max_per_household_per_month: 8, requires_approval: 0, is_active: 1, created_by: "", created_at: "", updated_at: "" },
+  { id: "d2", name: "Clubhouse", icon: "🏛️", location: "Community Center", description: "Seats up to 50. Full kitchen and AV system included. Board approval required for events.", capacity: 1, booking_window_days: 60, max_duration_hours: 8, min_duration_hours: 1, max_per_household_per_month: 2, requires_approval: 1, is_active: 1, created_by: "", created_at: "", updated_at: "" },
+  { id: "d3", name: "Tennis Court", icon: "🎾", location: "East Courts", description: "Two courts. Bring your own rackets and balls.", capacity: 2, booking_window_days: 14, max_duration_hours: 2, min_duration_hours: 0.5, max_per_household_per_month: 6, requires_approval: 0, is_active: 1, created_by: "", created_at: "", updated_at: "" },
+];
+
+const DEMO_RESERVATIONS = [
+  { id: "r1", amenity_id: "d1", reserved_by: "m2", date: todayStr(), start_time: "10:00", end_time: "11:30", guest_count: 0, notes: "", status: "confirmed", reviewed_by: null, reviewed_at: null, created_at: "", updated_at: "" },
+  { id: "r2", amenity_id: "d2", reserved_by: "m3", date: addDays(todayStr(), 2), start_time: "14:00", end_time: "18:00", guest_count: 20, notes: "Birthday party", status: "pending", reviewed_by: null, reviewed_at: null, created_at: "", updated_at: "" },
+  { id: "r3", amenity_id: "d3", reserved_by: "m1", date: todayStr(), start_time: "08:00", end_time: "09:30", guest_count: 0, notes: "", status: "confirmed", reviewed_by: null, reviewed_at: null, created_at: "", updated_at: "" },
+];
+
+// ── Data loading ──────────────────────────────────────────────────────────────
+
+async function loadContext() {
+  if (!CONTEXT) {
+    members = [
+      { id: "m1", name: "Alex Board", role: "adult" },
+      { id: "m2", name: "Beth Resident", role: "adult" },
+      { id: "m3", name: "Carol Resident", role: "adult" },
+    ];
+    memberMap = new Map(members.map(m => [m.id, m]));
+    groups = [];
+    return;
+  }
+  try {
+    const res = await fetch(`${CONTEXT}?keys=family.members,family.groups`);
+    const data = await res.json();
+    members = data["family.members"] ?? [];
+    groups  = data["family.groups"]  ?? [];
+  } catch { members = []; groups = []; }
+  memberMap = new Map(members.map(m => [m.id, m]));
+}
+
+async function loadSettings() {
+  const r = await db(`SELECT board_group_id FROM app_settings LIMIT 1`);
+  settings = r.rows[0] ?? { board_group_id: "" };
+}
+
+async function loadAmenities() {
+  if (!DB) { amenities = DEMO_AMENITIES; amenityMap = new Map(amenities.map(a => [a.id, a])); return; }
+  const r = await db(
+    `SELECT * FROM amenities WHERE household_id = current_setting('app.household_id', true)::uuid ORDER BY name`
+  );
+  amenities = r.rows;
+  amenityMap = new Map(amenities.map(a => [a.id, a]));
+}
+
+async function loadReservations() {
+  if (!DB) { reservations = DEMO_RESERVATIONS; return; }
+  const cutoff = addDays(todayStr(), -30);
+  const r = await db(
+    `SELECT * FROM reservations WHERE household_id = current_setting('app.household_id', true)::uuid AND date >= ? ORDER BY date, start_time`,
+    [cutoff]
+  );
+  reservations = r.rows;
+}
+
+// ── Render ────────────────────────────────────────────────────────────────────
+
+function render() {
+  const board = amIBoard();
+  const pendingCount = reservations.filter(r => r.status === "pending").length;
+  document.getElementById("root").innerHTML = `
+    ${renderHeader(board)}
+    ${renderTabs(board, pendingCount)}
+    ${view === "amenities" ? renderAmenities(board)
+    : view === "detail"   ? renderDetail(board)
+    : view === "mine"     ? renderMine()
+    : view === "all"      ? renderAll()
+    : view === "pending"  ? renderPendingView()
+    : view === "admin"    ? renderAdmin(board)
+    : ""}
+  `;
+}
+
+function renderHeader(board) {
+  return `<header>
+    <div>
+      <h1>🏘️ Amenity Reservations</h1>
+      ${board ? `<div class="sub">Board access</div>` : ""}
+    </div>
+    ${board ? `<button class="btn-icon" onclick="setView('admin')" title="Manage amenities">⚙️</button>` : ""}
+  </header>`;
+}
+
+function renderTabs(board, pendingCount) {
+  const t = (label, v, badge = 0) =>
+    `<button class="tab ${view === v || (v === "amenities" && view === "detail") ? "active" : ""}" onclick="setView('${v}')">
+       ${esc(label)}${badge ? `<span class="badge-count">${badge}</span>` : ""}
+     </button>`;
+  return `<div class="tabs">
+    ${t("Amenities", "amenities")}
+    ${t("My Bookings", "mine")}
+    ${board ? t("All", "all") : ""}
+    ${board ? t("Pending", "pending", pendingCount) : ""}
+  </div>`;
+}
+
+// ── View: Amenities grid ──────────────────────────────────────────────────────
+
+function renderAmenities(board) {
+  const visible = amenities.filter(a => a.is_active || board);
+  if (!visible.length) {
+    return `<div class="empty">No amenities configured yet.${board ? "<br>Use ⚙️ to add one." : ""}</div>`;
+  }
+  const today = todayStr();
+  // Pre-index today's active reservations by amenity_id — O(n) once instead of O(n) per card
+  const todayResMap = new Map();
+  for (const r of reservations) {
+    if (r.date === today && (r.status === "confirmed" || r.status === "pending")) {
+      if (!todayResMap.has(r.amenity_id)) todayResMap.set(r.amenity_id, []);
+      todayResMap.get(r.amenity_id).push(r);
+    }
+  }
+  return `<div class="amenity-grid">${visible.map(a => {
+    const todayRes = todayResMap.get(a.id) ?? [];
+    let availHtml;
+    if (!a.is_active) {
+      availHtml = `<div class="amenity-avail" style="color:var(--muted)">Inactive</div>`;
+    } else if (a.capacity === 0) {
+      availHtml = todayRes.length
+        ? `<div class="amenity-avail avail-full">Booked today</div>`
+        : `<div class="amenity-avail avail-ok">✓ Available today</div>`;
+    } else if (todayRes.length >= a.capacity) {
+      availHtml = `<div class="amenity-avail avail-full">Full today</div>`;
+    } else if (todayRes.length > 0) {
+      availHtml = `<div class="amenity-avail avail-limited">${todayRes.length}/${a.capacity} slots booked</div>`;
+    } else {
+      availHtml = `<div class="amenity-avail avail-ok">✓ Available today</div>`;
+    }
+    return `<div class="amenity-card" onclick="openDetail('${esc(a.id)}')">
+      <div class="amenity-icon">${esc(a.icon)}</div>
+      <div class="amenity-name">${esc(a.name)}</div>
+      ${a.location ? `<div class="amenity-loc">📍 ${esc(a.location)}</div>` : ""}
+      ${availHtml}
+    </div>`;
+  }).join("")}</div>`;
+}
+
+// ── View: Detail ──────────────────────────────────────────────────────────────
+
+function renderDetail(board) {
+  if (!selectedAmenity) return `<div class="empty">Select an amenity.</div>`;
+  const a = selectedAmenity;
+  const maxDate = addDays(todayStr(), a.booking_window_days);
+
+  const dayRes = reservations
+    .filter(r => r.amenity_id === a.id && r.date === detailDate && r.status !== "cancelled" && r.status !== "denied")
+    .sort((x, y) => x.start_time.localeCompare(y.start_time));
+
+  const timelineHtml = dayRes.length === 0
+    ? `<div class="timeline-empty">No reservations on this date.</div>`
+    : dayRes.map(r => {
+        const m = members.find(x => x.id === r.reserved_by);
+        return `<div class="timeline-row">
+          <div class="timeline-time">${esc(fmtTime(r.start_time))}–${esc(fmtTime(r.end_time))}</div>
+          <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0">
+            <div class="avatar" style="background:${memberColor(r.reserved_by, members)}">${esc(initial(m?.name ?? "?"))}</div>
+            <div style="font-size:.85rem;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+              ${esc(m?.name ?? "Unknown")}
+            </div>
+            ${statusBadge(r.status)}
+          </div>
+        </div>`;
+      }).join("");
+
+  const canBook = ME && a.is_active;
+
+  return `
+    <button class="back-btn" onclick="setView('amenities')">← All Amenities</button>
+    <div class="card">
+      <div class="detail-header">
+        <div class="detail-icon">${esc(a.icon)}</div>
+        <div style="flex:1;min-width:0">
+          <div class="detail-title">${esc(a.name)}</div>
+          ${a.location ? `<div class="detail-meta">📍 ${esc(a.location)}</div>` : ""}
+          ${a.description ? `<div class="detail-desc">${esc(a.description)}</div>` : ""}
+        </div>
+        ${board ? `<button class="btn btn-ghost btn-sm" style="flex-shrink:0" onclick="openAmenityModal('${esc(a.id)}')">Edit</button>` : ""}
+      </div>
+      <div class="rules-box">
+        <div class="rules-row"><dt>Min/Max booking:</dt> <span>${a.min_duration_hours}–${a.max_duration_hours} hrs</span></div>
+        ${a.capacity > 0 ? `<div class="rules-row"><dt>Concurrent slots:</dt> <span>${a.capacity}</span></div>` : ""}
+        ${a.max_per_household_per_month > 0 ? `<div class="rules-row"><dt>Monthly limit:</dt> <span>${a.max_per_household_per_month} per household</span></div>` : ""}
+        <div class="rules-row"><dt>Book window:</dt> <span>Up to ${a.booking_window_days} days ahead</span></div>
+        ${a.requires_approval ? `<div class="rules-row"><dt>Note:</dt> <span>Board approval required</span></div>` : ""}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Availability</div>
+      <div class="date-nav">
+        <button class="date-nav-btn" onclick="shiftDate(-1)" ${detailDate <= todayStr() ? "disabled" : ""}>◀</button>
+        <div class="date-label">${esc(fmtDate(detailDate))}</div>
+        <button class="date-nav-btn" onclick="shiftDate(1)" ${detailDate >= maxDate ? "disabled" : ""}>▶</button>
+      </div>
+      <div class="date-input-row">
+        <input type="date" class="date-input" value="${esc(detailDate)}"
+          min="${esc(todayStr())}" max="${esc(maxDate)}"
+          onchange="changeDate(this.value)" />
+      </div>
+      <div class="timeline">${timelineHtml}</div>
+    </div>
+
+    ${canBook
+      ? `<button class="btn btn-primary" style="width:100%;justify-content:center" onclick="openBookModal()">
+           Reserve ${esc(a.name)}${a.requires_approval ? " (approval required)" : ""}
+         </button>`
+      : !ME
+        ? `<p style="text-align:center;color:var(--muted);font-size:.85rem;padding:8px">Log in to make a reservation.</p>`
+        : `<p style="text-align:center;color:var(--muted);font-size:.85rem;padding:8px">This amenity is currently inactive.</p>`
+    }
+  `;
+}
+
+// ── View: My Bookings ─────────────────────────────────────────────────────────
+
+function renderMine() {
+  if (!ME) return `<div class="empty">Log in to see your bookings.</div>`;
+
+  const today = todayStr();
+  const mine = reservations
+    .filter(r => r.reserved_by === ME.id)
+    .sort((a, b) => (a.date + a.start_time).localeCompare(b.date + b.start_time));
+
+  if (!mine.length) return `<div class="empty">You have no reservations yet.<br>Browse amenities to book one.</div>`;
+
+  const upcoming = mine.filter(r => r.date >= today && r.status !== "cancelled" && r.status !== "denied");
+  const past     = mine.filter(r => r.date < today || r.status === "cancelled" || r.status === "denied");
+
+  const card = (r, allowCancel) => {
+    const a = amenityMap.get(r.amenity_id);
+    return `<div class="res-card">
+      <div class="res-top">
+        <div class="res-icon">${esc(a?.icon ?? "🏛️")}</div>
+        <div class="res-info">
+          <div class="res-name">${esc(a?.name ?? "Unknown Amenity")}</div>
+          <div class="res-time">${esc(fmtDate(r.date))} · ${esc(fmtTime(r.start_time))}–${esc(fmtTime(r.end_time))}</div>
+          ${a?.location ? `<div class="res-time">📍 ${esc(a.location)}</div>` : ""}
+        </div>
+      </div>
+      <div class="res-footer">
+        ${statusBadge(r.status)}
+        ${r.guest_count ? `<span class="badge badge-gray">${r.guest_count} guest${r.guest_count !== 1 ? "s" : ""}</span>` : ""}
+      </div>
+      ${r.notes ? `<div class="res-notes">"${esc(r.notes)}"</div>` : ""}
+      ${allowCancel && (r.status === "confirmed" || r.status === "pending") && r.date >= today
+        ? `<div style="margin-top:10px"><button class="btn btn-ghost btn-sm" onclick="cancelReservation('${esc(r.id)}')">Cancel Reservation</button></div>`
+        : ""}
+    </div>`;
+  };
+
+  return `
+    ${upcoming.length
+      ? `<div class="section-title">Upcoming</div>${upcoming.map(r => card(r, true)).join("")}`
+      : `<div style="color:var(--muted);font-size:.88rem;margin-bottom:16px">No upcoming reservations.</div>`}
+    ${past.length ? `<div class="section-title" style="margin-top:${upcoming.length ? 16 : 0}px">Past &amp; Cancelled</div>${past.slice(0, 10).map(r => card(r, false)).join("")}` : ""}
+  `;
+}
+
+// ── View: All (board) ─────────────────────────────────────────────────────────
+
+function renderAll() {
+  const today = todayStr();
+  const upcoming = reservations
+    .filter(r => r.date >= today && r.status !== "cancelled" && r.status !== "denied")
+    .sort((a, b) => (a.date + a.start_time).localeCompare(b.date + b.start_time));
+
+  if (!upcoming.length) return `<div class="empty">No upcoming reservations.</div>`;
+
+  let lastDate = "";
+  return upcoming.map(r => {
+    const a = amenityMap.get(r.amenity_id);
+    const m = memberMap.get(r.reserved_by);
+    const hdr = r.date !== lastDate
+      ? `<div class="date-group-label">${esc(fmtDate(r.date))}</div>`
+      : "";
+    lastDate = r.date;
+    return `${hdr}<div class="res-card">
+      <div class="res-top">
+        <div class="res-icon">${esc(a?.icon ?? "🏛️")}</div>
+        <div class="res-info">
+          <div class="res-name">${esc(a?.name ?? "Unknown")}</div>
+          <div class="res-time">${esc(fmtTime(r.start_time))}–${esc(fmtTime(r.end_time))}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+          <div class="avatar" style="background:${memberColor(r.reserved_by, members)}">${esc(initial(m?.name ?? "?"))}</div>
+          <span style="font-size:.82rem">${esc(m?.name ?? "Unknown")}</span>
+        </div>
+      </div>
+      <div class="res-footer">${statusBadge(r.status)}</div>
+    </div>`;
+  }).join("");
+}
+
+// ── View: Pending (board) ─────────────────────────────────────────────────────
+
+function renderPendingView() {
+  const pending = reservations
+    .filter(r => r.status === "pending")
+    .sort((a, b) => (a.date + a.start_time).localeCompare(b.date + b.start_time));
+
+  if (!pending.length) return `<div class="empty">No reservations awaiting approval. ✓</div>`;
+
+  return pending.map(r => {
+    const a = amenityMap.get(r.amenity_id);
+    const m = memberMap.get(r.reserved_by);
+    return `<div class="res-card">
+      <div class="res-top">
+        <div class="res-icon">${esc(a?.icon ?? "🏛️")}</div>
+        <div class="res-info">
+          <div class="res-name">${esc(a?.name ?? "Unknown")}</div>
+          <div class="res-time">${esc(fmtDate(r.date))} · ${esc(fmtTime(r.start_time))}–${esc(fmtTime(r.end_time))}</div>
+        </div>
+      </div>
+      <div class="member-row">
+        <div class="avatar" style="background:${memberColor(r.reserved_by, members)}">${esc(initial(m?.name ?? "?"))}</div>
+        <span style="font-size:.85rem">Requested by <strong>${esc(m?.name ?? "Unknown")}</strong></span>
+      </div>
+      ${r.guest_count ? `<div style="font-size:.8rem;color:var(--muted);margin-top:5px">Guests: ${r.guest_count}</div>` : ""}
+      ${r.notes ? `<div class="res-notes" style="margin-top:5px">"${esc(r.notes)}"</div>` : ""}
+      <div class="pending-actions">
+        <button class="btn btn-success btn-sm" onclick="approveReservation('${esc(r.id)}')">Approve</button>
+        <button class="btn btn-danger btn-sm" onclick="denyReservation('${esc(r.id)}')">Deny</button>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+// ── View: Admin ───────────────────────────────────────────────────────────────
+
+function renderAdmin(board) {
+  if (!board) return `<div class="empty">Board access required.</div>`;
+
+  const groupOpts = [
+    `<option value="" ${!settings.board_group_id ? "selected" : ""}>All adults</option>`,
+    ...groups.map(g => `<option value="${esc(g.id)}" ${settings.board_group_id === g.id ? "selected" : ""}>${esc(g.name)}</option>`),
+  ].join("");
+
+  const amenityRows = amenities.map(a => `
+    <div class="admin-row">
+      <div class="admin-row-icon">${esc(a.icon)}</div>
+      <div class="admin-row-info">
+        <div class="admin-row-name">
+          ${esc(a.name)}
+          ${!a.is_active ? `<span class="badge badge-gray" style="font-size:.68rem;margin-left:6px">Inactive</span>` : ""}
+        </div>
+        <div class="admin-row-meta">${esc(a.location || "No location")} · ${a.requires_approval ? "Approval required" : "Instant booking"}</div>
+      </div>
+      <div class="admin-row-actions">
+        <button class="btn btn-ghost btn-sm" onclick="openAmenityModal('${esc(a.id)}')">Edit</button>
+        <button class="btn btn-ghost btn-sm" onclick="toggleActive('${esc(a.id)}', ${a.is_active ? 1 : 0})">${a.is_active ? "Deactivate" : "Activate"}</button>
+      </div>
+    </div>`).join("");
+
+  return `
+    <button class="back-btn" onclick="setView('amenities')">← Back to Amenities</button>
+    <div class="card">
+      <div class="section-title">Board Access</div>
+      <div class="form-group" style="margin-bottom:6px">
+        <label>Who has board access?</label>
+        <select onchange="saveBoardGroup(this.value)">${groupOpts}</select>
+      </div>
+      ${!groups.length ? `<p style="font-size:.8rem;color:var(--muted)">Create groups at <strong>Settings → Groups</strong> to restrict board access to specific members.</p>` : ""}
+    </div>
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div class="section-title" style="margin:0">Amenities</div>
+        <button class="btn btn-primary btn-sm" onclick="openAmenityModal(null)">+ Add</button>
+      </div>
+      ${amenityRows || `<p style="color:var(--muted);font-size:.88rem;padding:8px 0">No amenities yet. Add your first one above.</p>`}
+    </div>
+  `;
+}
+
+// ── Navigation actions ────────────────────────────────────────────────────────
+
+window.setView = function(v) {
+  view = v;
+  if (v !== "detail") selectedAmenity = null;
+  render();
+};
+
+window.openDetail = function(id) {
+  selectedAmenity = amenities.find(a => a.id === id) ?? null;
+  if (selectedAmenity) { view = "detail"; detailDate = todayStr(); render(); }
+};
+
+window.shiftDate = function(n) {
+  detailDate = addDays(detailDate, n);
+  render();
+};
+
+window.changeDate = function(val) {
+  if (val) { detailDate = val; render(); }
+};
+
+// ── Booking actions ───────────────────────────────────────────────────────────
+
+window.openBookModal = function() {
+  const a = selectedAmenity;
+  if (!a || !ME) return;
+  const slots = timeSlots();
+  const opts = slots.map(s => `<option value="${esc(s)}">${esc(fmtTime(s))}</option>`).join("");
+  const defaultStartIdx = slots.indexOf("09:00");
+  const defaultEndIdx   = slots.indexOf("10:00");
+
+  openModal(`
+    <h3>Reserve ${esc(a.name)}</h3>
+    <div class="form-group">
+      <label>Date</label>
+      <input type="date" id="bk-date" value="${esc(detailDate)}"
+        min="${esc(todayStr())}" max="${esc(addDays(todayStr(), a.booking_window_days))}" />
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Start Time</label>
+        <select id="bk-start">${opts}</select>
+      </div>
+      <div class="form-group">
+        <label>End Time</label>
+        <select id="bk-end">${opts}</select>
+      </div>
+    </div>
+    ${a.capacity > 0 ? `<div class="form-group"><label>Number of Guests</label><input type="number" id="bk-guests" value="0" min="0" max="500" /></div>` : ""}
+    <div class="form-group">
+      <label>Notes <span style="font-weight:400;text-transform:none">(optional)</span></label>
+      <textarea id="bk-notes" placeholder="Purpose of booking, any special needs…"></textarea>
+    </div>
+    <div id="bk-error" class="error-msg"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="submitBooking()">
+        ${a.requires_approval ? "Request Reservation" : "Book Now"}
+      </button>
+    </div>
+  `);
+
+  const startSel = document.getElementById("bk-start");
+  const endSel   = document.getElementById("bk-end");
+  if (startSel && defaultStartIdx >= 0) startSel.selectedIndex = defaultStartIdx;
+  if (endSel   && defaultEndIdx   >= 0) endSel.selectedIndex   = defaultEndIdx;
+};
+
+window.submitBooking = async function() {
+  const a = selectedAmenity;
+  if (!a || !ME) return;
+
+  const date      = document.getElementById("bk-date")?.value ?? "";
+  const startTime = document.getElementById("bk-start")?.value ?? "";
+  const endTime   = document.getElementById("bk-end")?.value ?? "";
+  const guests    = parseInt(document.getElementById("bk-guests")?.value ?? "0", 10) || 0;
+  const notes     = document.getElementById("bk-notes")?.value.trim() ?? "";
+  const errorEl   = document.getElementById("bk-error");
+
+  function showErr(msg) { if (errorEl) errorEl.textContent = msg; }
+
+  if (!date || !startTime || !endTime) { showErr("Please fill in all required fields."); return; }
+  if (startTime >= endTime)            { showErr("End time must be after start time."); return; }
+
+  const dur = durationHours(startTime, endTime);
+  if (dur < a.min_duration_hours) { showErr(`Minimum booking duration is ${a.min_duration_hours} hr${a.min_duration_hours !== 1 ? "s" : ""}.`); return; }
+  if (dur > a.max_duration_hours) { showErr(`Maximum booking duration is ${a.max_duration_hours} hr${a.max_duration_hours !== 1 ? "s" : ""}.`); return; }
+  if (!isWithinBookingWindow(date, a.booking_window_days)) { showErr("That date is outside the booking window."); return; }
+
+  const amenityResForDate = reservations.filter(r => r.amenity_id === a.id && r.date === date);
+  if (hasConflict(startTime, endTime, amenityResForDate, a.capacity)) {
+    showErr("That time slot is not available. Please choose a different time.");
+    return;
+  }
+  if (!isWithinLimits(ME.id, a.id, date, reservations, a.max_per_household_per_month)) {
+    showErr(`You've reached the ${a.max_per_household_per_month} reservation/month limit for this amenity.`);
+    return;
+  }
+
+  const id     = crypto.randomUUID();
+  const now    = new Date().toISOString();
+  const status = a.requires_approval ? "pending" : "confirmed";
+
+  // Optimistic update — add to local state and close modal immediately
+  reservations.push({ id, amenity_id: a.id, reserved_by: ME.id, date, start_time: startTime,
+    end_time: endTime, guest_count: guests, notes, status, created_at: now, updated_at: now,
+    reviewed_by: null, reviewed_at: null });
+  closeModal();
+  render();
+
+  // Persist in the background
+  db(
+    `INSERT INTO reservations (household_id, id, amenity_id, reserved_by, date, start_time, end_time, guest_count, notes, status, created_at, updated_at)
+     VALUES (current_setting('app.household_id', true)::uuid, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [id, a.id, ME.id, date, startTime, endTime, guests, notes, status, now, now]
+  ).catch(() => loadReservations().then(render));
+
+  if (status === "pending") {
+    fetch("/api/notifications/send", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "Reservation Request",
+        body: `${ME.name} requested ${a.name} on ${fmtDate(date)} (${fmtTime(startTime)}–${fmtTime(endTime)})`,
+        url: `/run/${APP_ID}?view=pending`,
+        audience: "adults",
+      }),
+    }).catch(() => {});
+  }
+
+  fetch("/api/activity", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      type: "amenity_reserved",
+      description: `${ME.name} ${status === "pending" ? "requested" : "booked"} ${a.name} on ${fmtDate(date)}`,
+      metadata: { deepLink: { appId: APP_ID, params: { view: "mine" } } },
+    }),
+  }).catch(() => {});
+};
+
+window.cancelReservation = async function(id) {
+  const ok = await hubConfirm({ message: "Cancel this reservation?", confirmLabel: "Cancel Reservation", destructive: true });
+  if (!ok) return;
+  const now = new Date().toISOString();
+  const r = reservations.find(x => x.id === id);
+  if (r) { r.status = "cancelled"; r.updated_at = now; }
+  render();
+  db(`UPDATE reservations SET status = 'cancelled', updated_at = ? WHERE id = ? AND household_id = current_setting('app.household_id', true)::uuid`,
+    [now, id]
+  ).catch(() => loadReservations().then(render));
+};
+
+// ── Board approval actions ────────────────────────────────────────────────────
+
+window.approveReservation = async function(id) {
+  if (!ME) return;
+  const r = reservations.find(x => x.id === id);
+  if (!r) return;
+  const now = new Date().toISOString();
+  r.status = "confirmed"; r.reviewed_by = ME.id; r.reviewed_at = now; r.updated_at = now;
+  render();
+  const a = amenityMap.get(r.amenity_id);
+  fetch("/api/notifications/send", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      title: "Reservation Approved",
+      body: `Your ${a?.name ?? "reservation"} on ${fmtDate(r.date)} (${fmtTime(r.start_time)}–${fmtTime(r.end_time)}) has been approved.`,
+      url: `/run/${APP_ID}?view=mine`,
+    }),
+  }).catch(() => {});
+  db(`UPDATE reservations SET status = 'confirmed', reviewed_by = ?, reviewed_at = ?, updated_at = ? WHERE id = ? AND household_id = current_setting('app.household_id', true)::uuid`,
+    [ME.id, now, now, id]
+  ).catch(() => loadReservations().then(render));
+};
+
+window.denyReservation = async function(id) {
+  const ok = await hubConfirm({ message: "Deny this reservation request?", confirmLabel: "Deny", destructive: true });
+  if (!ok) return;
+  if (!ME) return;
+  const r = reservations.find(x => x.id === id);
+  if (!r) return;
+  const now = new Date().toISOString();
+  r.status = "denied"; r.reviewed_by = ME.id; r.reviewed_at = now; r.updated_at = now;
+  render();
+  const a = amenityMap.get(r.amenity_id);
+  fetch("/api/notifications/send", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      title: "Reservation Not Approved",
+      body: `Your request for ${a?.name ?? "a reservation"} on ${fmtDate(r.date)} was not approved.`,
+      url: `/run/${APP_ID}?view=mine`,
+    }),
+  }).catch(() => {});
+  db(`UPDATE reservations SET status = 'denied', reviewed_by = ?, reviewed_at = ?, updated_at = ? WHERE id = ? AND household_id = current_setting('app.household_id', true)::uuid`,
+    [ME.id, now, now, id]
+  ).catch(() => loadReservations().then(render));
+};
+
+// ── Admin actions ─────────────────────────────────────────────────────────────
+
+const PRESET_ICONS = ["🏊", "🏛️", "🎾", "🏓", "🏋️", "🌿", "🅿️", "🏀", "⛳", "🎱", "🛖", "🔥", "🧺", "🏠", "🎳", "🏐"];
+
+window.openAmenityModal = function(id) {
+  const a = id ? amenities.find(x => x.id === id) : null;
+  const iconOpts = PRESET_ICONS.map(ic =>
+    `<option value="${esc(ic)}" ${(a?.icon ?? "🏛️") === ic ? "selected" : ""}>${ic}</option>`
+  ).join("");
+
+  openModal(`
+    <h3>${a ? `Edit ${esc(a.name)}` : "Add Amenity"}</h3>
+    <div class="form-row">
+      <div class="form-group" style="flex:0 0 95px">
+        <label>Icon</label>
+        <select id="am-icon" style="font-size:1.2rem">${iconOpts}</select>
+      </div>
+      <div class="form-group">
+        <label>Name</label>
+        <input type="text" id="am-name" value="${esc(a?.name ?? "")}" placeholder="Pool, Clubhouse…" maxlength="60" />
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Location</label>
+      <input type="text" id="am-loc" value="${esc(a?.location ?? "")}" placeholder="Building A, East Courts…" maxlength="100" />
+    </div>
+    <div class="form-group">
+      <label>Description <span style="font-weight:400;text-transform:none">(optional)</span></label>
+      <textarea id="am-desc" maxlength="500" placeholder="Hours, rules, what's included…">${esc(a?.description ?? "")}</textarea>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Min Duration (hrs)</label>
+        <input type="number" id="am-min" value="${a?.min_duration_hours ?? 0.5}" min="0.5" max="24" step="0.5" />
+      </div>
+      <div class="form-group">
+        <label>Max Duration (hrs)</label>
+        <input type="number" id="am-max" value="${a?.max_duration_hours ?? 4}" min="0.5" max="24" step="0.5" />
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Capacity (0 = unlimited)</label>
+        <input type="number" id="am-cap" value="${a?.capacity ?? 0}" min="0" max="100" />
+      </div>
+      <div class="form-group">
+        <label>Book Window (days)</label>
+        <input type="number" id="am-win" value="${a?.booking_window_days ?? 30}" min="1" max="365" />
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Monthly Limit / Household (0 = unlimited)</label>
+      <input type="number" id="am-limit" value="${a?.max_per_household_per_month ?? 4}" min="0" max="100" />
+    </div>
+    <div class="toggle-row">
+      <span>Requires Board Approval</span>
+      <input type="checkbox" id="am-approval" ${a?.requires_approval ? "checked" : ""} />
+    </div>
+    <div id="am-error" class="error-msg"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="submitAmenity('${esc(a?.id ?? "")}')">
+        ${a ? "Save Changes" : "Add Amenity"}
+      </button>
+    </div>
+  `);
+};
+
+window.submitAmenity = async function(existingId) {
+  const name     = document.getElementById("am-name")?.value.trim() ?? "";
+  const icon     = document.getElementById("am-icon")?.value ?? "🏛️";
+  const loc      = document.getElementById("am-loc")?.value.trim() ?? "";
+  const desc     = document.getElementById("am-desc")?.value.trim() ?? "";
+  const minDur   = parseFloat(document.getElementById("am-min")?.value) || 0.5;
+  const maxDur   = parseFloat(document.getElementById("am-max")?.value) || 4;
+  const cap      = parseInt(document.getElementById("am-cap")?.value, 10) || 0;
+  const win      = parseInt(document.getElementById("am-win")?.value, 10) || 30;
+  const limit    = parseInt(document.getElementById("am-limit")?.value, 10) || 0;
+  const approval = document.getElementById("am-approval")?.checked ? 1 : 0;
+  const errorEl  = document.getElementById("am-error");
+
+  if (!name) { if (errorEl) errorEl.textContent = "Name is required."; document.getElementById("am-name")?.focus(); return; }
+  if (minDur > maxDur) { if (errorEl) errorEl.textContent = "Min duration cannot exceed max duration."; return; }
+
+  const now = new Date().toISOString();
+  let bgCall;
+  if (existingId) {
+    const updated = { ...amenityMap.get(existingId), name, icon, location: loc, description: desc,
+      min_duration_hours: minDur, max_duration_hours: maxDur, capacity: cap,
+      booking_window_days: win, max_per_household_per_month: limit, requires_approval: approval, updated_at: now };
+    const idx = amenities.findIndex(a => a.id === existingId);
+    if (idx !== -1) amenities[idx] = updated;
+    amenityMap.set(existingId, updated);
+    if (selectedAmenity?.id === existingId) selectedAmenity = updated;
+    bgCall = db(
+      `UPDATE amenities SET name=?, icon=?, location=?, description=?, min_duration_hours=?, max_duration_hours=?, capacity=?, booking_window_days=?, max_per_household_per_month=?, requires_approval=?, updated_at=? WHERE id=? AND household_id=current_setting('app.household_id', true)::uuid`,
+      [name, icon, loc, desc, minDur, maxDur, cap, win, limit, approval, now, existingId]
+    );
+  } else {
+    const id = crypto.randomUUID();
+    const newAmenity = { id, name, icon, location: loc, description: desc, min_duration_hours: minDur,
+      max_duration_hours: maxDur, capacity: cap, booking_window_days: win,
+      max_per_household_per_month: limit, requires_approval: approval, is_active: 1,
+      created_by: ME?.id ?? "", created_at: now, updated_at: now };
+    amenities.push(newAmenity);
+    amenityMap.set(id, newAmenity);
+    bgCall = db(
+      `INSERT INTO amenities (household_id, id, name, icon, location, description, min_duration_hours, max_duration_hours, capacity, booking_window_days, max_per_household_per_month, requires_approval, is_active, created_by, created_at, updated_at)
+       VALUES (current_setting('app.household_id', true)::uuid, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)`,
+      [id, name, icon, loc, desc, minDur, maxDur, cap, win, limit, approval, ME?.id ?? "", now, now]
+    );
+  }
+  closeModal();
+  render();
+  bgCall.catch(() => loadAmenities().then(render));
+};
+
+window.toggleActive = async function(id, currentlyActive) {
+  const newVal = currentlyActive ? 0 : 1;
+  const now    = new Date().toISOString();
+  const a = amenityMap.get(id);
+  if (a) { a.is_active = newVal; a.updated_at = now; }
+  render();
+  db(`UPDATE amenities SET is_active=?, updated_at=? WHERE id=? AND household_id=current_setting('app.household_id', true)::uuid`,
+    [newVal, now, id]
+  ).catch(() => loadAmenities().then(render));
+};
+
+window.saveBoardGroup = async function(groupId) {
+  settings.board_group_id = groupId;
+  render();
+  db(`INSERT INTO app_settings (household_id, board_group_id) VALUES (current_setting('app.household_id', true)::uuid, ?)
+     ON CONFLICT (household_id) DO UPDATE SET board_group_id = EXCLUDED.board_group_id`, [groupId]).catch(() => {});
+};
+
+// ── Modal ─────────────────────────────────────────────────────────────────────
+
+function openModal(html) {
+  closeModal();
+  modalEl = document.createElement("div");
+  modalEl.className = "modal-backdrop";
+  modalEl.innerHTML = `<div class="modal">${html}</div>`;
+  modalEl.addEventListener("click", e => { if (e.target === modalEl) closeModal(); });
+  document.body.appendChild(modalEl);
+}
+function closeModal() { modalEl?.remove(); modalEl = null; }
+window.closeModal = closeModal;
+
+// ── Deep link ─────────────────────────────────────────────────────────────────
+
+function handleDeepLink() {
+  const params = new URLSearchParams(window.location.search);
+  const v = params.get("view");
+  const VALID_VIEWS = ["amenities", "mine", "all", "pending", "admin"];
+  if (v && VALID_VIEWS.includes(v)) view = v;
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+
+(async () => {
+  await Promise.all([loadContext(), loadSettings(), loadAmenities(), loadReservations()]);
+  handleDeepLink();
+  render();
+})();
+</script>
+</body>
+</html>
