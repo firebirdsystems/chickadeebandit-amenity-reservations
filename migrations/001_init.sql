@@ -1,11 +1,8 @@
-CREATE TABLE IF NOT EXISTS app_settings (
-  household_id   UUID NOT NULL DEFAULT current_setting('app.household_id', true)::uuid,
-  board_group_id TEXT NOT NULL DEFAULT '',
-  PRIMARY KEY (household_id)
+CREATE TABLE IF NOT EXISTS app_amenity_reservations__app_settings (
+  board_group_id TEXT NOT NULL DEFAULT ''
 );
 
-CREATE TABLE IF NOT EXISTS amenities (
-  household_id                UUID NOT NULL DEFAULT current_setting('app.household_id', true)::uuid,
+CREATE TABLE IF NOT EXISTS app_amenity_reservations__amenities (
   id                          TEXT NOT NULL,
   name                        TEXT NOT NULL,
   description                 TEXT NOT NULL DEFAULT '',
@@ -21,11 +18,10 @@ CREATE TABLE IF NOT EXISTS amenities (
   created_by                  TEXT NOT NULL DEFAULT '',
   created_at                  TEXT NOT NULL,
   updated_at                  TEXT NOT NULL,
-  PRIMARY KEY (household_id, id)
+  PRIMARY KEY (id)
 );
 
-CREATE TABLE IF NOT EXISTS reservations (
-  household_id UUID NOT NULL DEFAULT current_setting('app.household_id', true)::uuid,
+CREATE TABLE IF NOT EXISTS app_amenity_reservations__reservations (
   id           TEXT NOT NULL,
   amenity_id   TEXT NOT NULL,
   reserved_by  TEXT NOT NULL,
@@ -39,11 +35,11 @@ CREATE TABLE IF NOT EXISTS reservations (
   reviewed_at  TEXT,
   created_at   TEXT NOT NULL,
   updated_at   TEXT NOT NULL,
-  PRIMARY KEY (household_id, id)
+  PRIMARY KEY (id)
 );
 
 CREATE INDEX IF NOT EXISTS idx_ar_reservations_amenity_date
-  ON reservations (household_id, amenity_id, date);
+  ON app_amenity_reservations__reservations (amenity_id, date);
 
 CREATE INDEX IF NOT EXISTS idx_ar_reservations_member
-  ON reservations (household_id, reserved_by);
+  ON app_amenity_reservations__reservations (reserved_by);

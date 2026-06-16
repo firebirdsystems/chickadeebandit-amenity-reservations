@@ -9,12 +9,10 @@ SELECT
   r.status,
   r.guest_count,
   r.notes
-FROM reservations r
-JOIN amenities a
+FROM app_amenity_reservations__reservations r
+JOIN app_amenity_reservations__amenities a
   ON a.id = r.amenity_id
-  AND a.household_id = r.household_id
-WHERE r.household_id = current_setting('app.household_id', true)::uuid
-  AND r.status IN ('pending', 'confirmed')
-  AND r.date >= current_date::text
+WHERE r.status IN ('pending', 'confirmed')
+  AND r.date >= CURRENT_DATE
 ORDER BY r.date, r.start_time
 LIMIT 50
