@@ -768,7 +768,7 @@ window.submitBooking = async function() {
   ).catch(() => loadReservations().then(render));
 
   if (status === "pending") {
-    fetch("/api/notifications/send", {
+    fetch(window.__NOTIFY_URL ?? "/api/notifications/send", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -780,7 +780,7 @@ window.submitBooking = async function() {
     }).catch(() => {});
   }
 
-  fetch("/api/activity", {
+  fetch(window.__ACTIVITY_URL ?? "/api/activity", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -813,7 +813,7 @@ window.approveReservation = async function(id) {
   r.status = "confirmed"; r.reviewed_by = ME.id; r.reviewed_at = now; r.updated_at = now;
   render();
   const a = amenityMap.get(r.amenity_id);
-  fetch("/api/notifications/send", {
+  fetch(window.__NOTIFY_URL ?? "/api/notifications/send", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -837,7 +837,7 @@ window.denyReservation = async function(id) {
   r.status = "denied"; r.reviewed_by = ME.id; r.reviewed_at = now; r.updated_at = now;
   render();
   const a = amenityMap.get(r.amenity_id);
-  fetch("/api/notifications/send", {
+  fetch(window.__NOTIFY_URL ?? "/api/notifications/send", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
