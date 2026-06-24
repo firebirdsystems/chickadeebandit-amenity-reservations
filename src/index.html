@@ -209,6 +209,7 @@ let groups       = [];
 let settings     = { board_group_id: "" };
 let amenities    = [];
 let reservations = [];
+let reviewMap    = new Map();
 let memberMap    = new Map();
 let amenityMap   = new Map();
 let view         = "amenities";
@@ -308,8 +309,36 @@ async function loadContext() {
 }
 
 async function loadSettings() {
-  const r = await db(`SELECT board_group_id FROM app_amenity_reservations__app_settings LIMIT 1`);
-  settings = r.rows[0] ?? { board_group_id: "" };
+  // settings is adult_only — a child member's read is rejected (they're never board,
+  // so an empty board_group_id is the correct fallback). Guard against a missing
+  // rows array so that rejection is non-fatal.
+  const r = await db(`SELECT value FROM app_amenity_reservations__settings WHERE key = 'board_group_id' LIMIT 1`);
+  settings = { board_group_id: r.rows?.[0]?.value ?? "" };
+}
+
+async function loadReviews() {
+  if (!DB) { reviewMap = new Map(); return; }
+  const r = await db(`SELECT reservation_id, decision, reviewed_by, reviewed_at FROM app_amenity_reservations__reviews`);
+  reviewMap = new Map((r.rows ?? []).map(rv => [rv.reservation_id, rv]));
+}
+
+// Effective status is derived from the board-only `reviews` table and the amenity's
+// approval setting — never trusted from the (self-writable) reservation row, except
+// for owner cancellation. This neutralises a member setting their own row to
+// "confirmed" to skip board approval.
+function effectiveStatus(r) {
+  if (r.status === "cancelled") return "cancelled";
+  const review = reviewMap.get(r.id);
+  if (review) return review.decision;            // board confirmed / denied
+  const a = amenityMap.get(r.amenity_id);
+  if (a && a.requires_approval) return "pending";
+  return "confirmed";                            // instant-booking amenity
+}
+
+// Fold the derived status into the in-memory rows so existing render/conflict/limit
+// logic keeps reading `r.status`.
+function applyEffectiveStatus() {
+  for (const r of reservations) r.status = effectiveStatus(r);
 }
 
 async function loadAmenities() {
@@ -334,6 +363,7 @@ async function loadReservations() {
 // ── Render ────────────────────────────────────────────────────────────────────
 
 function render() {
+  applyEffectiveStatus();
   const board = amIBoard();
   const pendingCount = reservations.filter(r => r.status === "pending").length;
   document.getElementById("root").innerHTML = `
@@ -609,7 +639,7 @@ function renderAdmin(board) {
   if (!board) return `<div class="empty">Board access required.</div>`;
 
   const groupOpts = [
-    `<option value="" ${!settings.board_group_id ? "selected" : ""}>All adults</option>`,
+    `<option value="" ${!settings.board_group_id ? "selected" : ""}>Select a board group…</option>`,
     ...groups.map(g => `<option value="${esc(g.id)}" ${settings.board_group_id === g.id ? "selected" : ""}>${esc(g.name)}</option>`),
   ].join("");
 
@@ -637,7 +667,8 @@ function renderAdmin(board) {
         <label>Who has board access?</label>
         <select onchange="saveBoardGroup(this.value)">${groupOpts}</select>
       </div>
-      ${!groups.length ? `<p style="font-size:.8rem;color:var(--muted)">Create groups at <strong>Settings → Groups</strong> to restrict board access to specific members.</p>` : ""}
+      ${!settings.board_group_id ? `<p style="font-size:.8rem;color:var(--amber)">⚠️ Choose a board group to enable managing amenities and approving reservations. Until one is set, these board-only actions are disabled.</p>` : ""}
+      ${!groups.length ? `<p style="font-size:.8rem;color:var(--muted)">Create groups at <strong>Settings → Groups</strong> first, then select one here to grant board access.</p>` : ""}
     </div>
     <div class="card">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
@@ -751,6 +782,8 @@ window.submitBooking = async function() {
 
   const id     = crypto.randomUUID();
   const now    = new Date().toISOString();
+  // Effective status is derived (see effectiveStatus); the stored value is only a
+  // hint and is ignored for approval-required amenities until the board reviews.
   const status = a.requires_approval ? "pending" : "confirmed";
 
   // Optimistic update — add to local state and close modal immediately
@@ -760,12 +793,12 @@ window.submitBooking = async function() {
   closeModal();
   render();
 
-  // Persist in the background
+  // Persist in the background. reserved_by is forced server-side by the row policy.
   db(
     `INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, notes, status, created_at, updated_at)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [id, a.id, ME.id, date, startTime, endTime, guests, notes, status, now, now]
-  ).catch(() => loadReservations().then(render));
+  ).catch(() => reloadReservations());
 
   if (status === "pending") {
     fetch(window.__NOTIFY_URL ?? "/api/notifications/send", {
@@ -798,20 +831,34 @@ window.cancelReservation = async function(id) {
   const r = reservations.find(x => x.id === id);
   if (r) { r.status = "cancelled"; r.updated_at = now; }
   render();
+  // Owner-scoped by the row policy: a member can only cancel their own reservation
+  // (the board may cancel any via the board-group bypass).
   db(`UPDATE app_amenity_reservations__reservations SET status = 'cancelled', updated_at = ? WHERE id = ?`,
     [now, id]
-  ).catch(() => loadReservations().then(render));
+  ).catch(() => reloadReservations());
 };
 
 // ── Board approval actions ────────────────────────────────────────────────────
+// Decisions are written to the board-only `reviews` table (insert_privileged_only):
+// only members of the configured board group may insert, so a member cannot
+// approve/deny their own (or anyone's) reservation by writing the reservation row.
+
+async function recordReview(id, decision) {
+  if (!ME) return;
+  const now = new Date().toISOString();
+  reviewMap.set(id, { reservation_id: id, decision, reviewed_by: ME.id, reviewed_at: now });
+  applyEffectiveStatus();
+  render();
+  return db(
+    `INSERT OR REPLACE INTO app_amenity_reservations__reviews (reservation_id, decision, reviewed_by, reviewed_at) VALUES (?, ?, ?, ?)`,
+    [id, decision, ME.id, now]
+  ).catch(() => reloadReservations());
+}
 
 window.approveReservation = async function(id) {
   if (!ME) return;
   const r = reservations.find(x => x.id === id);
   if (!r) return;
-  const now = new Date().toISOString();
-  r.status = "confirmed"; r.reviewed_by = ME.id; r.reviewed_at = now; r.updated_at = now;
-  render();
   const a = amenityMap.get(r.amenity_id);
   fetch(window.__NOTIFY_URL ?? "/api/notifications/send", {
     method: "POST",
@@ -822,9 +869,7 @@ window.approveReservation = async function(id) {
       url: `/run/${APP_ID}?view=mine`,
     }),
   }).catch(() => {});
-  db(`UPDATE app_amenity_reservations__reservations SET status = 'confirmed', reviewed_by = ?, reviewed_at = ?, updated_at = ? WHERE id = ?`,
-    [ME.id, now, now, id]
-  ).catch(() => loadReservations().then(render));
+  await recordReview(id, "confirmed");
 };
 
 window.denyReservation = async function(id) {
@@ -833,9 +878,6 @@ window.denyReservation = async function(id) {
   if (!ME) return;
   const r = reservations.find(x => x.id === id);
   if (!r) return;
-  const now = new Date().toISOString();
-  r.status = "denied"; r.reviewed_by = ME.id; r.reviewed_at = now; r.updated_at = now;
-  render();
   const a = amenityMap.get(r.amenity_id);
   fetch(window.__NOTIFY_URL ?? "/api/notifications/send", {
     method: "POST",
@@ -846,9 +888,7 @@ window.denyReservation = async function(id) {
       url: `/run/${APP_ID}?view=mine`,
     }),
   }).catch(() => {});
-  db(`UPDATE app_amenity_reservations__reservations SET status = 'denied', reviewed_by = ?, reviewed_at = ?, updated_at = ? WHERE id = ?`,
-    [ME.id, now, now, id]
-  ).catch(() => loadReservations().then(render));
+  await recordReview(id, "denied");
 };
 
 // ── Admin actions ─────────────────────────────────────────────────────────────
@@ -982,9 +1022,9 @@ window.toggleActive = async function(id, currentlyActive) {
 window.saveBoardGroup = async function(groupId) {
   settings.board_group_id = groupId;
   render();
-  db(`DELETE FROM app_amenity_reservations__app_settings`).then(() =>
-    db(`INSERT INTO app_amenity_reservations__app_settings (board_group_id) VALUES (?)`, [groupId])
-  ).catch(() => {});
+  // settings is adult_only — only adults may change who the board is.
+  db(`INSERT INTO app_amenity_reservations__settings (key, value) VALUES ('board_group_id', ?)
+      ON CONFLICT (key) DO UPDATE SET value = excluded.value`, [groupId]).catch(() => {});
 };
 
 // ── Modal ─────────────────────────────────────────────────────────────────────
@@ -1011,8 +1051,15 @@ function handleDeepLink() {
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 
+async function reloadReservations() {
+  await Promise.all([loadReservations(), loadReviews()]);
+  applyEffectiveStatus();
+  render();
+}
+
 (async () => {
-  await Promise.all([loadContext(), loadSettings(), loadAmenities(), loadReservations()]);
+  await Promise.all([loadContext(), loadSettings(), loadAmenities(), loadReservations(), loadReviews()]);
+  applyEffectiveStatus();
   handleDeepLink();
   render();
 })();
