@@ -457,7 +457,7 @@ function renderDetail(board) {
   const timelineHtml = dayRes.length === 0
     ? `<div class="timeline-empty">No reservations on this date.</div>`
     : dayRes.map(r => {
-        const m = members.find(x => x.id === r.reserved_by);
+        const m = memberMap.get(r.reserved_by);
         return `<div class="timeline-row">
           <div class="timeline-time">${esc(fmtTime(r.start_time))}–${esc(fmtTime(r.end_time))}</div>
           <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0">
