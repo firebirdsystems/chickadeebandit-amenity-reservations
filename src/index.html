@@ -1022,9 +1022,12 @@ window.toggleActive = async function(id, currentlyActive) {
 window.saveBoardGroup = async function(groupId) {
   settings.board_group_id = groupId;
   render();
-  // settings is adult_only — only adults may change who the board is.
-  db(`INSERT INTO app_amenity_reservations__settings (key, value) VALUES ('board_group_id', ?)
-      ON CONFLICT (key) DO UPDATE SET value = excluded.value`, [groupId]).catch(() => {});
+  // settings is app_config — writes must go through the admin-config hub endpoint, not /api/db.
+  fetch(`/run/${APP_ID}/api/admin-config`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ key: "board_group_id", value: groupId }),
+  }).catch(() => {});
 };
 
 // ── Modal ─────────────────────────────────────────────────────────────────────

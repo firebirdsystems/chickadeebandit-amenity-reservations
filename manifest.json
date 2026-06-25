@@ -17,7 +17,11 @@
     "default_audience": "everyone",
     "requires_approval": false
   },
-  "db_plaintext_columns": ["decision"],
+  "db_plaintext_columns": ["decision", "date", "start_time", "end_time", "visibility"],
+  "admin_config": {
+    "settings_table": "settings",
+    "keys": ["board_group_id"]
+  },
   "row_policies": {
     "reservations": {
       "kind": "owner_or_visibility",
@@ -44,7 +48,7 @@
       "bypass_group_setting": { "settings_table": "settings", "settings_key": "board_group_id" }
     },
     "settings": {
-      "kind": "adult_only"
+      "kind": "app_config"
     }
   },
   "nav": { "label": "Amenities" },
