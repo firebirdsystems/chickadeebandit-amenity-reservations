@@ -171,6 +171,49 @@
     .modal-actions .btn { flex: 1; justify-content: center; min-width: 90px; }
     .error-msg { color: #dc2626; font-size: 0.82rem; margin-top: 6px; min-height: 18px; }
 
+    /* Outlook-style day-timeline picker */
+    .bk-readout { font-size: 0.85rem; margin-bottom: 8px; font-weight: 600; }
+    .bk-readout.muted { color: var(--muted); font-weight: 500; }
+    .bk-readout.ok   { color: #16a34a; }
+    .bk-readout.bad  { color: #dc2626; }
+    .bk-grid {
+      border: 1px solid var(--border); border-radius: 8px;
+      max-height: 300px; overflow-y: auto; -webkit-overflow-scrolling: touch;
+    }
+    .bk-slot {
+      display: flex; align-items: stretch; width: 100%; padding: 0;
+      border: none; border-bottom: 1px solid var(--border);
+      background: var(--card); color: inherit; font: inherit;
+      text-align: left; cursor: pointer; min-height: 34px;
+    }
+    .bk-slot:last-child { border-bottom: none; }
+    .bk-slot-time {
+      width: 78px; flex-shrink: 0; padding: 7px 8px;
+      color: var(--muted); font-size: 0.78rem; font-variant-numeric: tabular-nums;
+      border-right: 1px solid var(--border);
+    }
+    .bk-slot-body {
+      flex: 1; min-width: 0; padding: 7px 10px;
+      display: flex; align-items: center; gap: 6px;
+      font-size: 0.78rem; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+    }
+    .bk-slot.free:hover { background: #f3f4f6; }
+    .bk-slot.sel { background: var(--accent); }
+    .bk-slot.sel .bk-slot-time { color: var(--accent-fg); opacity: .8; border-right-color: rgba(255,255,255,.25); }
+    .bk-slot.sel .bk-slot-body { color: var(--accent-fg); font-weight: 600; }
+    .bk-slot.partial { background: #fff7ed; }
+    .bk-slot.partial .bk-slot-body { color: #c2410c; }
+    .bk-slot.full {
+      cursor: not-allowed;
+      background: repeating-linear-gradient(45deg, #f3f4f6, #f3f4f6 6px, #eceef1 6px, #eceef1 12px);
+    }
+    .bk-slot.full .bk-slot-body { color: var(--muted); }
+    .bk-pick-hint { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .bk-pick-hint .link-btn {
+      background: none; border: none; color: var(--accent); font-size: 0.78rem;
+      font-weight: 600; cursor: pointer; padding: 0;
+    }
+
     .admin-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
     .admin-row:last-child { border-bottom: none; }
     .admin-row-icon { font-size: 1.4rem; flex-shrink: 0; }
@@ -217,6 +260,15 @@ let selectedAmenity = null;
 let detailDate   = todayStr();
 let modalEl      = null;
 
+// Booking time-picker state (Outlook-style day grid). bkSlots holds 30-min
+// intervals for the open booking modal; bkStartSlot/bkEndSlot are inclusive
+// indices into bkSlots for the current selection (-1 = nothing picked).
+const BK_DAY_START = 7 * 60;   // 07:00
+const BK_DAY_END   = 22 * 60;  // 22:00
+let bkSlots      = [];
+let bkStartSlot  = -1;
+let bkEndSlot    = -1;
+
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 function todayStr() { return new Date().toISOString().slice(0, 10); }
@@ -248,17 +300,6 @@ function statusBadge(s) {
   return "";
 }
 
-function timeSlots(from = "07:00", to = "22:00") {
-  const slots = [];
-  let [h, m] = from.split(":").map(Number);
-  const [eh, em] = to.split(":").map(Number);
-  while (h * 60 + m <= eh * 60 + em) {
-    slots.push(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
-    m += 30;
-    if (m >= 60) { h++; m = 0; }
-  }
-  return slots;
-}
 
 // ── DB ────────────────────────────────────────────────────────────────────────
 
@@ -704,30 +745,76 @@ window.changeDate = function(val) {
 
 // ── Booking actions ───────────────────────────────────────────────────────────
 
+// ── Booking time picker (Outlook-style day grid) ───────────────────────────────
+
+/** "HH:MM" for a minutes-since-midnight value. */
+function minToTime(mn) {
+  return `${String(Math.floor(mn / 60)).padStart(2, "0")}:${String(mn % 60).padStart(2, "0")}`;
+}
+
+/** Human duration, e.g. 0.5 → "30 min", 1 → "1 hr", 1.5 → "1.5 hrs". */
+function fmtDur(h) {
+  if (h < 1) return `${Math.round(h * 60)} min`;
+  return `${h} hr${h === 1 ? "" : "s"}`;
+}
+
+/**
+ * Builds the day's 30-min slots for `a` on `date`, marking occupancy.
+ * A slot is `full` when single-occupancy and any reservation overlaps, or
+ * when multi-occupancy and all concurrent slots are taken.
+ */
+function bkBuildSlots(a, date) {
+  const res = reservations.filter(r =>
+    r.amenity_id === a.id && r.date === date &&
+    r.status !== "cancelled" && r.status !== "denied");
+  const out = [];
+  for (let mn = BK_DAY_START; mn < BK_DAY_END; mn += 30) {
+    const start = mn, end = mn + 30;
+    const overlap = res.filter(r =>
+      timesToMinutes(r.start_time) < end && timesToMinutes(r.end_time) > start);
+    const occ  = overlap.length;
+    const full = a.capacity === 0 ? occ >= 1 : occ >= a.capacity;
+    out.push({ start, end, occ, full, overlap });
+  }
+  return out;
+}
+
+/** Pre-selects a sensible default window (min-duration starting at 9 AM if free). */
+function bkPickDefault(a) {
+  const idx = bkSlots.findIndex(s => s.start === 9 * 60);
+  if (idx < 0 || bkSlots[idx].full) return;
+  const need = Math.max(1, Math.round((a.min_duration_hours * 60) / 30));
+  let end = idx;
+  for (let k = idx; k < idx + need && k < bkSlots.length; k++) {
+    if (bkSlots[k].full) break;
+    end = k;
+  }
+  bkStartSlot = idx;
+  bkEndSlot = end;
+}
+
 window.openBookModal = function() {
   const a = selectedAmenity;
   if (!a || !ME) return;
-  const slots = timeSlots();
-  const opts = slots.map(s => `<option value="${esc(s)}">${esc(fmtTime(s))}</option>`).join("");
-  const defaultStartIdx = slots.indexOf("09:00");
-  const defaultEndIdx   = slots.indexOf("10:00");
 
   openModal(`
     <h3>Reserve ${esc(a.name)}</h3>
     <div class="form-group">
       <label>Date</label>
       <input type="date" id="bk-date" value="${esc(detailDate)}"
-        min="${esc(todayStr())}" max="${esc(addDays(todayStr(), a.booking_window_days))}" />
+        min="${esc(todayStr())}" max="${esc(addDays(todayStr(), a.booking_window_days))}"
+        onchange="rebuildBkGrid()" />
     </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Start Time</label>
-        <select id="bk-start">${opts}</select>
+    <div class="form-group">
+      <label>Time</label>
+      <div class="bk-pick-hint">
+        <span style="font-size:.78rem;color:var(--muted)">Tap a start, then an end time.</span>
+        <button type="button" class="link-btn" onclick="clearBkSelection()">Clear</button>
       </div>
-      <div class="form-group">
-        <label>End Time</label>
-        <select id="bk-end">${opts}</select>
-      </div>
+      <div id="bk-readout" class="bk-readout muted"></div>
+      <div id="bk-grid" class="bk-grid"></div>
+      <input type="hidden" id="bk-start" />
+      <input type="hidden" id="bk-end" />
     </div>
     ${a.capacity > 0 ? `<div class="form-group"><label>Number of Guests</label><input type="number" id="bk-guests" value="0" min="0" max="500" /></div>` : ""}
     <div class="form-group">
@@ -737,17 +824,124 @@ window.openBookModal = function() {
     <div id="bk-error" class="error-msg"></div>
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="submitBooking()">
+      <button class="btn btn-primary" id="bk-submit" onclick="submitBooking()">
         ${a.requires_approval ? "Request Reservation" : "Book Now"}
       </button>
     </div>
   `);
 
-  const startSel = document.getElementById("bk-start");
-  const endSel   = document.getElementById("bk-end");
-  if (startSel && defaultStartIdx >= 0) startSel.selectedIndex = defaultStartIdx;
-  if (endSel   && defaultEndIdx   >= 0) endSel.selectedIndex   = defaultEndIdx;
+  rebuildBkGrid();
 };
+
+/** Rebuilds the slot grid for the modal's current date and resets selection. */
+window.rebuildBkGrid = function() {
+  const a = selectedAmenity;
+  if (!a) return;
+  const date = document.getElementById("bk-date")?.value || detailDate;
+  bkSlots = bkBuildSlots(a, date);
+  bkStartSlot = -1;
+  bkEndSlot = -1;
+  bkPickDefault(a);
+  renderBkGrid();
+  syncBkSelection();
+};
+
+/** Handles a tap on slot `i`: starts, extends, or shrinks the selection. */
+window.pickBkSlot = function(i) {
+  const slot = bkSlots[i];
+  if (!slot || slot.full) return;
+  if (bkStartSlot < 0) {
+    bkStartSlot = bkEndSlot = i;
+  } else if (i > bkEndSlot) {
+    // Extend downward, clamping before the first full slot in the way.
+    let j = i;
+    for (let k = bkEndSlot + 1; k <= i; k++) { if (bkSlots[k].full) { j = k - 1; break; } }
+    bkEndSlot = j;
+  } else if (i < bkStartSlot) {
+    // Extend upward, clamping after the nearest full slot above.
+    let j = i;
+    for (let k = bkStartSlot - 1; k >= i; k--) { if (bkSlots[k].full) { j = k + 1; break; } }
+    bkStartSlot = j;
+  } else {
+    // Tap inside the selection trims the tail.
+    bkEndSlot = i;
+  }
+  renderBkGrid();
+  syncBkSelection();
+};
+
+window.clearBkSelection = function() {
+  bkStartSlot = -1;
+  bkEndSlot = -1;
+  renderBkGrid();
+  syncBkSelection();
+};
+
+/** Renders the slot rows reflecting occupancy and the current selection. */
+function renderBkGrid() {
+  const grid = document.getElementById("bk-grid");
+  if (!grid) return;
+  const a = selectedAmenity;
+  grid.innerHTML = bkSlots.map((s, i) => {
+    const inSel = bkStartSlot >= 0 && i >= bkStartSlot && i <= bkEndSlot;
+    let cls, body = "";
+    if (s.full) {
+      cls = "full";
+      const runStart = i === 0 || !bkSlots[i - 1].full;
+      if (runStart) {
+        const who = s.overlap.length ? memberName(s.overlap[0].reserved_by) : "Reserved";
+        const extra = a.capacity > 0 ? ` · full (${s.occ}/${a.capacity})` : "";
+        body = `<span>${esc(who)}${esc(extra)}</span>`;
+      }
+    } else if (inSel) {
+      cls = "sel";
+      if (i === bkStartSlot) body = `<span>Your reservation</span>`;
+    } else if (a.capacity > 0 && s.occ > 0) {
+      cls = "partial";
+      const runStart = i === 0 || bkSlots[i - 1].full || bkSlots[i - 1].occ === 0;
+      if (runStart) body = `<span>${s.occ}/${a.capacity} booked</span>`;
+    } else {
+      cls = "free";
+    }
+    return `<button type="button" class="bk-slot ${cls}" ${s.full ? "disabled" : `onclick="pickBkSlot(${i})"`}>
+      <span class="bk-slot-time">${esc(fmtTime(minToTime(s.start)))}</span>
+      <span class="bk-slot-body">${body}</span>
+    </button>`;
+  }).join("");
+}
+
+/** Mirrors the selection into the hidden inputs, readout, and Book button state. */
+function syncBkSelection() {
+  const a = selectedAmenity;
+  const startInput = document.getElementById("bk-start");
+  const endInput   = document.getElementById("bk-end");
+  const readout    = document.getElementById("bk-readout");
+  const bookBtn    = document.getElementById("bk-submit");
+  if (!startInput || !endInput || !readout) return;
+
+  if (bkStartSlot < 0) {
+    startInput.value = "";
+    endInput.value = "";
+    readout.className = "bk-readout muted";
+    readout.textContent = "Tap a free time to start your reservation.";
+    if (bookBtn) bookBtn.disabled = true;
+    return;
+  }
+
+  const startMin = bkSlots[bkStartSlot].start;
+  const endMin   = bkSlots[bkEndSlot].end;
+  startInput.value = minToTime(startMin);
+  endInput.value   = minToTime(endMin);
+
+  const dur = (endMin - startMin) / 60;
+  let ok = true, note = "";
+  if (dur < a.min_duration_hours)      { ok = false; note = ` — minimum ${fmtDur(a.min_duration_hours)}`; }
+  else if (dur > a.max_duration_hours) { ok = false; note = ` — maximum ${fmtDur(a.max_duration_hours)}`; }
+
+  readout.className = ok ? "bk-readout ok" : "bk-readout bad";
+  readout.textContent = `${fmtTime(minToTime(startMin))} – ${fmtTime(minToTime(endMin))} · ${fmtDur(dur)}${note}`;
+  if (bookBtn) bookBtn.disabled = !ok;
+}
 
 window.submitBooking = async function() {
   const a = selectedAmenity;
