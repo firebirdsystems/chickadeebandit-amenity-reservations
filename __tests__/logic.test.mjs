@@ -3,33 +3,25 @@ import {
   isBoard, timesToMinutes, durationHours,
   hasConflict, isWithinLimits, isWithinBookingWindow,
 } from "../src/logic.js";
+import { testPrivilegedGateContract } from "./helpers/privileged-gate.mjs";
 
 // ── isBoard ────────────────────────────────────────────────────────────────────
+// isBoard fronts the `amenities` / `reviews` insert_privileged_only policies, so
+// it must satisfy the shared privileged-gate contract (mirrors the hub: no adult
+// fallback when no board group is configured).
 
-test("all adults are board when no group configured", () => {
-  expect(isBoard({ id: "a1", role: "adult" }, [], "")).toBe(true);
+testPrivilegedGateContract("isBoard", isBoard, {
+  member:   { id: "a1", role: "adult" },
+  outsider: { id: "a3", role: "adult" },
+  groups:   [{ id: "g1", memberIds: ["a1", "a2"] }],
+  groupId:  "g1",
 });
 
-test("children are never board", () => {
-  expect(isBoard({ id: "c1", role: "child" }, [], "")).toBe(false);
-});
-
-test("null member is not board", () => {
-  expect(isBoard(null, [], "")).toBe(false);
-});
-
-test("adult in board group is board", () => {
-  const groups = [{ id: "g1", memberIds: ["a1", "a2"] }];
-  expect(isBoard({ id: "a1", role: "adult" }, groups, "g1")).toBe(true);
-});
-
-test("adult not in board group is not board", () => {
-  const groups = [{ id: "g1", memberIds: ["a1", "a2"] }];
-  expect(isBoard({ id: "a3", role: "adult" }, groups, "g1")).toBe(false);
-});
-
-test("falls back to all adults when configured group no longer exists", () => {
-  expect(isBoard({ id: "a1", role: "adult" }, [], "deleted-group-id")).toBe(true);
+// App-specific: board access additionally requires adulthood, so a child IN the
+// group is still not board (stricter than the hub, never looser — safe).
+test("a child in the board group is still not board (adults only)", () => {
+  const groups = [{ id: "g1", memberIds: ["a1", "c1"] }];
+  expect(isBoard({ id: "c1", role: "child" }, groups, "g1")).toBe(false);
 });
 
 // ── timesToMinutes / durationHours ─────────────────────────────────────────────

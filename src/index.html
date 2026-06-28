@@ -246,6 +246,10 @@ const CONTEXT = window.__CONTEXT_URL ?? "";
 const DB      = window.__DB_URL      ?? "";
 const ME      = window.__CURRENT_MEMBER ?? null;
 const APP_ID  = window.__APP_ID ?? "amenity-reservations";
+// Hub admin flag — distinct from board membership. A hub admin must be able to
+// reach the admin view to appoint the board group even before one exists (and
+// thus before anyone has board access), otherwise configuration deadlocks.
+const IS_ADMIN = window.__IS_ADMIN ?? false;
 
 let members      = [];
 let groups       = [];
@@ -426,7 +430,7 @@ function renderHeader(board) {
       <h1>🏘️ Amenity Reservations</h1>
       ${board ? `<div class="sub">Board access</div>` : ""}
     </div>
-    ${board ? `<button class="btn-icon" onclick="setView('admin')" title="Manage amenities">⚙️</button>` : ""}
+    ${(board || IS_ADMIN) ? `<button class="btn-icon" onclick="setView('admin')" title="${board ? "Manage amenities" : "Board settings"}">⚙️</button>` : ""}
   </header>`;
 }
 
@@ -677,7 +681,10 @@ function renderPendingView() {
 // ── View: Admin ───────────────────────────────────────────────────────────────
 
 function renderAdmin(board) {
-  if (!board) return `<div class="empty">Board access required.</div>`;
+  // A hub admin may reach this view to appoint the board group even without
+  // board access (the bootstrap case). Amenity management below stays gated on
+  // actual board membership, since the hub rejects those writes otherwise.
+  if (!board && !IS_ADMIN) return `<div class="empty">Board access required.</div>`;
 
   const groupOpts = [
     `<option value="" ${!settings.board_group_id ? "selected" : ""}>Select a board group…</option>`,
@@ -702,22 +709,32 @@ function renderAdmin(board) {
 
   return `
     <button class="back-btn" onclick="setView('amenities')">← Back to Amenities</button>
-    <div class="card">
-      <div class="section-title">Board Access</div>
-      <div class="form-group" style="margin-bottom:6px">
-        <label>Who has board access?</label>
-        <select onchange="saveBoardGroup(this.value)">${groupOpts}</select>
+    ${IS_ADMIN ? `
+      <div class="card">
+        <div class="section-title">Board Access</div>
+        <div class="form-group" style="margin-bottom:6px">
+          <label>Who has board access?</label>
+          <select onchange="saveBoardGroup(this.value)">${groupOpts}</select>
+        </div>
+        ${!settings.board_group_id ? `<p style="font-size:.8rem;color:var(--amber)">⚠️ Choose a board group to enable managing amenities and approving reservations. Until one is set, these board-only actions are disabled.</p>` : ""}
+        ${!groups.length ? `<p style="font-size:.8rem;color:var(--muted)">Create groups at <strong>Settings → Groups</strong> first, then select one here to grant board access.</p>` : ""}
       </div>
-      ${!settings.board_group_id ? `<p style="font-size:.8rem;color:var(--amber)">⚠️ Choose a board group to enable managing amenities and approving reservations. Until one is set, these board-only actions are disabled.</p>` : ""}
-      ${!groups.length ? `<p style="font-size:.8rem;color:var(--muted)">Create groups at <strong>Settings → Groups</strong> first, then select one here to grant board access.</p>` : ""}
-    </div>
-    <div class="card">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-        <div class="section-title" style="margin:0">Amenities</div>
-        <button class="btn btn-primary btn-sm" onclick="openAmenityModal(null)">+ Add</button>
+    ` : ""}
+    ${board ? `
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div class="section-title" style="margin:0">Amenities</div>
+          <button class="btn btn-primary btn-sm" onclick="openAmenityModal(null)">+ Add</button>
+        </div>
+        ${amenityRows || `<p style="color:var(--muted);font-size:.88rem;padding:8px 0">No amenities yet. Add your first one above.</p>`}
       </div>
-      ${amenityRows || `<p style="color:var(--muted);font-size:.88rem;padding:8px 0">No amenities yet. Add your first one above.</p>`}
-    </div>
+    ` : `
+      <div class="card"><p style="font-size:.85rem;color:var(--muted)">
+        ${settings.board_group_id
+          ? "You are not a member of the board group, so you cannot manage amenities."
+          : "Choose a board group above (and add yourself to it) to manage amenities."}
+      </p></div>
+    `}
   `;
 }
 

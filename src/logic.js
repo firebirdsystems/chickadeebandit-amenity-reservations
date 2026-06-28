@@ -2,15 +2,22 @@ import { isAdult } from "./shared.js";
 export { isAdult };
 
 /**
- * Returns true if `me` has board-level access.
- * When no board group is configured, all adults qualify.
- * If the configured group is deleted, falls back to all adults.
+ * Returns true if `me` has board-level access (managing amenities, reviewing
+ * reservations).
+ *
+ * This MUST mirror the hub's server-side privileged check for the
+ * `amenities`/`reviews` row policies (`insert_privileged_only` +
+ * `bypass_group_setting`): a member is privileged iff a board group is
+ * configured AND that group still exists AND the member belongs to it. There is
+ * deliberately NO "all adults" fallback when no group is set — the hub rejects
+ * every privileged INSERT in that case, so showing board-only UI to adults
+ * would only produce 403s. (Residents can still make their own reservations;
+ * that table is not privileged-gated.)
  */
 export function isBoard(me, groups, boardGroupId) {
-  if (!isAdult(me)) return false;
-  if (!boardGroupId) return true;
+  if (!isAdult(me) || !boardGroupId) return false;
   const g = groups.find(g => g.id === boardGroupId);
-  return g ? g.memberIds.includes(me.id) : true;
+  return !!g && g.memberIds.includes(me.id);
 }
 
 /** Converts "HH:MM" to minutes since midnight. */
