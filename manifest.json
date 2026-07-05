@@ -29,7 +29,7 @@
       "visibility_column": "visibility",
       "everyone_values": ["everyone"],
       "write_owner_only": true,
-      "bypass_group_setting": { "settings_table": "settings", "settings_key": "board_group_id" }
+      "privileged_groups": [{ "settings_table": "settings", "settings_key": "board_group_id" }]
     },
     "reviews": {
       "kind": "inherit_visibility",
@@ -45,7 +45,7 @@
       "everyone_values": ["everyone"],
       "write_owner_only": true,
       "insert_privileged_only": true,
-      "bypass_group_setting": { "settings_table": "settings", "settings_key": "board_group_id" }
+      "privileged_groups": [{ "settings_table": "settings", "settings_key": "board_group_id" }]
     },
     "settings": {
       "kind": "app_config"
