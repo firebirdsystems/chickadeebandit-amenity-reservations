@@ -475,11 +475,11 @@ function renderAmenities(board) {
     } else if (todayRes.length >= a.capacity) {
       availHtml = `<div class="amenity-avail avail-full">Full today</div>`;
     } else if (todayRes.length > 0) {
-      availHtml = `<div class="amenity-avail avail-limited">${todayRes.length}/${a.capacity} slots booked</div>`;
+      availHtml = `<div class="amenity-avail avail-limited">${todayRes.length}/${esc(a.capacity)} slots booked</div>`;
     } else {
       availHtml = `<div class="amenity-avail avail-ok">✓ Available today</div>`;
     }
-    return `<div class="amenity-card" onclick="openDetail('${esc(a.id)}')">
+    return `<div class="amenity-card" data-act="openDetail" data-id="${esc(a.id)}">
       <div class="amenity-icon">${esc(a.icon)}</div>
       <div class="amenity-name">${esc(a.name)}</div>
       ${a.location ? `<div class="amenity-loc">📍 ${esc(a.location)}</div>` : ""}
@@ -527,13 +527,13 @@ function renderDetail(board) {
           ${a.location ? `<div class="detail-meta">📍 ${esc(a.location)}</div>` : ""}
           ${a.description ? `<div class="detail-desc">${esc(a.description)}</div>` : ""}
         </div>
-        ${board ? `<button class="btn btn-ghost btn-sm" style="flex-shrink:0" onclick="openAmenityModal('${esc(a.id)}')">Edit</button>` : ""}
+        ${board ? `<button class="btn btn-ghost btn-sm" style="flex-shrink:0" data-act="editAmenity" data-id="${esc(a.id)}">Edit</button>` : ""}
       </div>
       <div class="rules-box">
-        <div class="rules-row"><dt>Min/Max booking:</dt> <span>${a.min_duration_hours}–${a.max_duration_hours} hrs</span></div>
-        ${a.capacity > 0 ? `<div class="rules-row"><dt>Concurrent slots:</dt> <span>${a.capacity}</span></div>` : ""}
-        ${a.max_per_household_per_month > 0 ? `<div class="rules-row"><dt>Monthly limit:</dt> <span>${a.max_per_household_per_month} per household</span></div>` : ""}
-        <div class="rules-row"><dt>Book window:</dt> <span>Up to ${a.booking_window_days} days ahead</span></div>
+        <div class="rules-row"><dt>Min/Max booking:</dt> <span>${esc(a.min_duration_hours)}–${esc(a.max_duration_hours)} hrs</span></div>
+        ${a.capacity > 0 ? `<div class="rules-row"><dt>Concurrent slots:</dt> <span>${esc(a.capacity)}</span></div>` : ""}
+        ${a.max_per_household_per_month > 0 ? `<div class="rules-row"><dt>Monthly limit:</dt> <span>${esc(a.max_per_household_per_month)} per household</span></div>` : ""}
+        <div class="rules-row"><dt>Book window:</dt> <span>Up to ${esc(a.booking_window_days)} days ahead</span></div>
         ${a.requires_approval ? `<div class="rules-row"><dt>Note:</dt> <span>Board approval required</span></div>` : ""}
       </div>
     </div>
@@ -592,11 +592,11 @@ function renderMine() {
       </div>
       <div class="res-footer">
         ${statusBadge(r.status)}
-        ${r.guest_count ? `<span class="badge badge-gray">${r.guest_count} guest${r.guest_count !== 1 ? "s" : ""}</span>` : ""}
+        ${r.guest_count ? `<span class="badge badge-gray">${esc(r.guest_count)} guest${r.guest_count !== 1 ? "s" : ""}</span>` : ""}
       </div>
       ${r.notes ? `<div class="res-notes">"${esc(r.notes)}"</div>` : ""}
       ${allowCancel && (r.status === "confirmed" || r.status === "pending") && r.date >= today
-        ? `<div style="margin-top:10px"><button class="btn btn-ghost btn-sm" onclick="cancelReservation('${esc(r.id)}')">Cancel Reservation</button></div>`
+        ? `<div style="margin-top:10px"><button class="btn btn-ghost btn-sm" data-act="cancel" data-id="${esc(r.id)}">Cancel Reservation</button></div>`
         : ""}
     </div>`;
   };
@@ -668,11 +668,11 @@ function renderPendingView() {
         <div class="avatar" style="background:${memberColor(r.reserved_by, members)}">${esc(initial(m?.name ?? "?"))}</div>
         <span style="font-size:.85rem">Requested by <strong>${esc(m?.name ?? "Unknown")}</strong></span>
       </div>
-      ${r.guest_count ? `<div style="font-size:.8rem;color:var(--muted);margin-top:5px">Guests: ${r.guest_count}</div>` : ""}
+      ${r.guest_count ? `<div style="font-size:.8rem;color:var(--muted);margin-top:5px">Guests: ${esc(r.guest_count)}</div>` : ""}
       ${r.notes ? `<div class="res-notes" style="margin-top:5px">"${esc(r.notes)}"</div>` : ""}
       <div class="pending-actions">
-        <button class="btn btn-success btn-sm" onclick="approveReservation('${esc(r.id)}')">Approve</button>
-        <button class="btn btn-danger btn-sm" onclick="denyReservation('${esc(r.id)}')">Deny</button>
+        <button class="btn btn-success btn-sm" data-act="approve" data-id="${esc(r.id)}">Approve</button>
+        <button class="btn btn-danger btn-sm" data-act="deny" data-id="${esc(r.id)}">Deny</button>
       </div>
     </div>`;
   }).join("");
@@ -702,8 +702,8 @@ function renderAdmin(board) {
         <div class="admin-row-meta">${esc(a.location || "No location")} · ${a.requires_approval ? "Approval required" : "Instant booking"}</div>
       </div>
       <div class="admin-row-actions">
-        <button class="btn btn-ghost btn-sm" onclick="openAmenityModal('${esc(a.id)}')">Edit</button>
-        <button class="btn btn-ghost btn-sm" onclick="toggleActive('${esc(a.id)}', ${a.is_active ? 1 : 0})">${a.is_active ? "Deactivate" : "Activate"}</button>
+        <button class="btn btn-ghost btn-sm" data-act="editAmenity" data-id="${esc(a.id)}">Edit</button>
+        <button class="btn btn-ghost btn-sm" data-act="toggleActive" data-id="${esc(a.id)}" data-active="${a.is_active ? 1 : 0}">${a.is_active ? "Deactivate" : "Activate"}</button>
       </div>
     </div>`).join("");
 
@@ -724,7 +724,7 @@ function renderAdmin(board) {
       <div class="card">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
           <div class="section-title" style="margin:0">Amenities</div>
-          <button class="btn btn-primary btn-sm" onclick="openAmenityModal(null)">+ Add</button>
+          <button class="btn btn-primary btn-sm" data-act="editAmenity">+ Add</button>
         </div>
         ${amenityRows || `<p style="color:var(--muted);font-size:.88rem;padding:8px 0">No amenities yet. Add your first one above.</p>`}
       </div>
@@ -916,7 +916,7 @@ function renderBkGrid() {
     } else if (a.capacity > 0 && s.occ > 0) {
       cls = "partial";
       const runStart = i === 0 || bkSlots[i - 1].full || bkSlots[i - 1].occ === 0;
-      if (runStart) body = `<span>${s.occ}/${a.capacity} booked</span>`;
+      if (runStart) body = `<span>${s.occ}/${esc(a.capacity)} booked</span>`;
     } else {
       cls = "free";
     }
@@ -1163,7 +1163,7 @@ window.openAmenityModal = function(id) {
     <div id="am-error" class="error-msg"></div>
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="submitAmenity('${esc(a?.id ?? "")}')">
+      <button class="btn btn-primary" data-act="submitAmenity" data-id="${esc(a?.id ?? "")}">
         ${a ? "Save Changes" : "Add Amenity"}
       </button>
     </div>
@@ -1253,6 +1253,28 @@ function openModal(html) {
 }
 function closeModal() { modalEl?.remove(); modalEl = null; }
 window.closeModal = closeModal;
+
+// ── Event delegation ──────────────────────────────────────────────────────────
+// Actions that carry a DB-derived id (reservation/amenity id, chosen by whoever
+// INSERTed the row via raw /api/db) are dispatched via data-* attributes instead
+// of inline onclick handlers. HTML-escaping is not sufficient inside an inline
+// JS-string-in-attribute context — after attribute decoding the value re-enters a
+// script context — so ids must never be interpolated into onclick. Covers both
+// #root and the modal (appended to <body>).
+document.body.addEventListener("click", (e) => {
+  const el = e.target.closest("[data-act]");
+  if (!el) return;
+  const id = el.dataset.id;
+  switch (el.dataset.act) {
+    case "openDetail":    window.openDetail(id); break;
+    case "editAmenity":   window.openAmenityModal(id || null); break;
+    case "cancel":        window.cancelReservation(id); break;
+    case "approve":       window.approveReservation(id); break;
+    case "deny":          window.denyReservation(id); break;
+    case "toggleActive":  window.toggleActive(id, el.dataset.active === "1" ? 1 : 0); break;
+    case "submitAmenity": window.submitAmenity(id ?? ""); break;
+  }
+});
 
 // ── Deep link ─────────────────────────────────────────────────────────────────
 
