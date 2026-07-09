@@ -1,0 +1,23 @@
+{
+  "scenarios": [
+    {
+      "name": "amenities are managed only by the board group: plain members cannot create or edit them",
+      "members": { "member": "adult" },
+      "steps": [
+        {
+          "action": "db",
+          "as": "member",
+          "sql": "INSERT INTO app_amenity_reservations__amenities (id, created_by, visibility) VALUES (?, ?, 'everyone')",
+          "params": ["am1", "{{member}}"],
+          "expect": { "status": 403 }
+        },
+        {
+          "action": "db",
+          "as": "member",
+          "sql": "UPDATE app_amenity_reservations__amenities SET visibility = 'everyone'",
+          "expect": { "status": 403 }
+        }
+      ]
+    }
+  ]
+}
