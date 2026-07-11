@@ -29,7 +29,12 @@
       "visibility_column": "visibility",
       "everyone_values": ["everyone"],
       "write_owner_only": true,
-      "privileged_groups": [{ "settings_table": "settings", "settings_key": "board_group_id" }]
+      "privileged_groups": [{ "settings_table": "settings", "settings_key": "board_group_id" }],
+      "max_per_member": {
+        "member_column": "reserved_by",
+        "scope_columns": ["amenity_id", { "column": "date", "transform": "month" }],
+        "limit": 30
+      }
     },
     "reviews": {
       "kind": "inherit_visibility",
