@@ -1,5 +1,6 @@
 {
   "id": "amenity-reservations",
+  "contexts": ["household", "shared_space"],
   "name": "Amenity Reservations",
   "version": "1.0.0",
   "description": "Reserve shared facilities — pool, clubhouse, courts, BBQ. Board configures amenities, booking windows, usage limits, and approval requirements.",
