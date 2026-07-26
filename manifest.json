@@ -2,7 +2,7 @@
   "id": "amenity-reservations",
   "contexts": ["household", "shared_space"],
   "name": "Amenity Reservations",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Reserve shared facilities — pool, clubhouse, courts, BBQ. Board configures amenities, booking windows, usage limits, and approval requirements.",
   "entrypoint": "index.html",
   "runtime": "static",
@@ -55,6 +55,14 @@
     },
     "settings": {
       "kind": "app_config"
+    }
+  },
+  "agenda": {
+    "kind": "event",
+    "label": "Amenities",
+    "source": {
+      "kind": "sql",
+      "query": "SELECT r.id AS id, a.name AS title, r.date || 'T' || r.start_time AS when_at, r.start_time || '–' || r.end_time AS subtitle, r.reserved_by AS member_id FROM app_amenity_reservations__reservations r JOIN app_amenity_reservations__amenities a ON a.id = r.amenity_id WHERE r.date = :today AND r.status IN ('confirmed', 'pending') ORDER BY r.start_time LIMIT 20"
     }
   },
   "nav": { "label": "Amenities" },
