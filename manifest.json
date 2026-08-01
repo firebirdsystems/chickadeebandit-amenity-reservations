@@ -18,7 +18,7 @@
     "default_audience": "everyone",
     "requires_approval": false
   },
-  "db_plaintext_columns": ["decision", "date", "start_time", "end_time", "visibility"],
+  "db_plaintext_columns": ["decision", "date", "start_time", "end_time", "visibility", "name"],
   "admin_config": {
     "settings_table": "settings",
     "keys": ["board_group_id"]
@@ -65,6 +65,24 @@
       "query": "SELECT r.id AS id, a.name AS title, r.date || 'T' || r.start_time AS when_at, r.start_time || '–' || r.end_time AS subtitle, r.reserved_by AS member_id FROM app_amenity_reservations__reservations r JOIN app_amenity_reservations__amenities a ON a.id = r.amenity_id WHERE r.date = :today AND r.status IN ('confirmed', 'pending') ORDER BY r.start_time LIMIT 20"
     }
   },
+  "member_references": {
+    "amenities": { "column": "created_by", "on_removed": "keep" },
+    "reservations": [
+      {
+        "column": "reserved_by",
+        "on_removed": "delete",
+        "dependent_tables": [
+          {
+            "table": "reviews",
+            "foreign_key": "reservation_id"
+          }
+        ]
+      },
+      { "column": "reviewed_by", "on_removed": "keep" }
+    ],
+    "reviews": { "column": "reviewed_by", "on_removed": "keep" }
+  },
+  "resource_limits": { "max_db_bytes": 52428800 },
   "nav": { "label": "Amenities" },
   "ai_access": {
     "allowed": true,

@@ -20,6 +20,6 @@ LEFT JOIN app_amenity_reservations__reviews rv
   ON rv.reservation_id = r.id
 WHERE r.status <> 'cancelled'
   AND COALESCE(rv.decision, '') <> 'denied'
-  AND r.date >= CURRENT_DATE
+  AND r.date >= :today
 ORDER BY r.date, r.start_time
 LIMIT 50

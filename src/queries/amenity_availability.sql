@@ -8,7 +8,7 @@ SELECT
 FROM app_amenity_reservations__amenities a
 LEFT JOIN app_amenity_reservations__reservations r
   ON r.amenity_id = a.id
-  AND r.date = CURRENT_DATE
+  AND r.date = :today
   AND r.status <> 'cancelled'
 LEFT JOIN app_amenity_reservations__reviews rv
   ON rv.reservation_id = r.id
