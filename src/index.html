@@ -236,7 +236,7 @@
   <div id="root"><div class="loading">Loading…</div></div>
 </div>
 <script type="module">
-import { memberColor, initial, esc, isAdult, hubConfirm } from "/hub-sdk.js";
+import { memberColor, initial, esc, isAdult, hubConfirm, createDbHelper } from "/hub-sdk.js";
 import {
   isBoard as _isBoard, timesToMinutes, durationHours,
   hasConflict, isWithinLimits, isWithinBookingWindow,
@@ -307,14 +307,34 @@ function statusBadge(s) {
 
 // ── DB ────────────────────────────────────────────────────────────────────────
 
-async function db(sql, params = []) {
-  if (!DB) return { rows: [] };
-  const res = await fetch(DB, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ sql, params }),
-  });
-  return res.json();
+// The SDK helper THROWS on a `{ error }` body. The hand-rolled version this
+// replaced returned it, so a write refused by a row policy resolved normally:
+// the UI rendered success and every `.catch()` rollback below was dead code.
+const db = createDbHelper(DB);
+
+/**
+ * Minimal error surface. Every write here is optimistic — the row is added
+ * locally and persisted in the background — so a refused write used to leave
+ * the optimistic row on screen forever. The `.catch()`es now fire, reload the
+ * authoritative state, and say why.
+ */
+let errorTimer = null;
+function showError(err) {
+  const message = err?.message || "That change could not be saved.";
+  let el = document.getElementById("app-error");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "app-error";
+    el.setAttribute("role", "alert");
+    el.style.cssText = "position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:9999;"
+      + "max-width:min(90vw,520px);padding:10px 14px;border-radius:10px;font-size:0.9rem;"
+      + "background:var(--danger,#b42318);color:#fff;box-shadow:0 6px 24px rgba(0,0,0,.25)";
+    document.body.appendChild(el);
+  }
+  el.textContent = message;
+  el.style.display = "";
+  clearTimeout(errorTimer);
+  errorTimer = setTimeout(() => { el.style.display = "none"; }, 6000);
 }
 
 // ── Demo data ─────────────────────────────────────────────────────────────────
@@ -1009,7 +1029,7 @@ window.submitBooking = async function() {
     `INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, notes, status, created_at, updated_at)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [id, a.id, ME.id, date, startTime, endTime, guests, notes, status, now, now]
-  ).catch(() => reloadReservations());
+  ).catch((e) => { showError(e); reloadReservations(); });
 
   if (status === "pending") {
     fetch(window.__NOTIFY_URL ?? "/api/notifications/send", {
@@ -1046,7 +1066,7 @@ window.cancelReservation = async function(id) {
   // (the board may cancel any via the board-group bypass).
   db(`UPDATE app_amenity_reservations__reservations SET status = 'cancelled', updated_at = ? WHERE id = ?`,
     [now, id]
-  ).catch(() => reloadReservations());
+  ).catch((e) => { showError(e); reloadReservations(); });
 };
 
 // ── Board approval actions ────────────────────────────────────────────────────
@@ -1063,7 +1083,7 @@ async function recordReview(id, decision) {
   return db(
     `INSERT OR REPLACE INTO app_amenity_reservations__reviews (reservation_id, decision, reviewed_by, reviewed_at) VALUES (?, ?, ?, ?)`,
     [id, decision, ME.id, now]
-  ).catch(() => reloadReservations());
+  ).catch((e) => { showError(e); reloadReservations(); });
 }
 
 window.approveReservation = async function(id) {
@@ -1216,7 +1236,7 @@ window.submitAmenity = async function(existingId) {
   }
   closeModal();
   render();
-  bgCall.catch(() => loadAmenities().then(render));
+  bgCall.catch((e) => { showError(e); loadAmenities().then(render); });
 };
 
 window.toggleActive = async function(id, currentlyActive) {
@@ -1227,7 +1247,7 @@ window.toggleActive = async function(id, currentlyActive) {
   render();
   db(`UPDATE app_amenity_reservations__amenities SET is_active=?, updated_at=? WHERE id=?`,
     [newVal, now, id]
-  ).catch(() => loadAmenities().then(render));
+  ).catch((e) => { showError(e); loadAmenities().then(render); });
 };
 
 window.saveBoardGroup = async function(groupId) {
