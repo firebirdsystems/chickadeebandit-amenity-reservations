@@ -1,7 +1,7 @@
 import { expect, test } from "vitest";
 import {
   isBoard, timesToMinutes, durationHours,
-  hasConflict, isWithinLimits, isWithinBookingWindow,
+  hasConflict, isWithinLimits, isWithinBookingWindow, searchableFields,
 } from "../src/logic.js";
 import { testPrivilegedGateContract } from "./helpers/privileged-gate.mjs";
 
@@ -154,4 +154,12 @@ test("date exactly at window boundary is within", () => {
   const boundary = new Date();
   boundary.setDate(boundary.getDate() + 30);
   expect(isWithinBookingWindow(boundary.toISOString().slice(0, 10), 30)).toBe(true);
+});
+
+describe("searchableFields", () => {
+  it("matches on the location, not just the amenity name", () => {
+    const fields = searchableFields({ name: "Studio", description: "yoga and classes", location: "by the pool" });
+    expect(fields).toContain("by the pool");
+    expect(fields).toContain("yoga and classes");
+  });
 });

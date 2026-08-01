@@ -83,3 +83,13 @@ export function isWithinBookingWindow(date, windowDays) {
   const limitStr = limit.toISOString().slice(0, 10);
   return date >= today && date <= limitStr;
 }
+
+/**
+ * Fields the in-app search matches against (see hub-sdk `searchMatch`).
+ * Location and description count as well as the name — an amenity is
+ * looked for by where it is ("the room by the pool") when the catalogue
+ * is more than a handful of tiles.
+ */
+export function searchableFields(item) {
+  return [item.name, item.description, item.location];
+}

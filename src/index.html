@@ -229,6 +229,13 @@
 
     .empty   { text-align: center; padding: 36px 16px; color: var(--muted); font-size: 0.9rem; }
     .loading { text-align: center; padding: 40px; color: var(--muted); }
+    .search-row { margin-bottom: 12px; }
+    .search-input {
+      width: 100%; border: 1.5px solid var(--border-mid, var(--border, #d1d5db));
+      border-radius: 8px; padding: 9px 11px; font: inherit;
+      background: var(--surface, var(--card, #fff)); color: var(--text, inherit);
+    }
+    .search-input:focus { outline: none; border-color: var(--accent, #6366f1); }
   </style>
 </head>
 <body>
@@ -236,10 +243,10 @@
   <div id="root"><div class="loading">Loading…</div></div>
 </div>
 <script type="module">
-import { memberColor, initial, esc, isAdult, hubConfirm, createDbHelper } from "/hub-sdk.js";
+import { memberColor, initial, esc, isAdult, hubConfirm, createDbHelper, searchMatch } from "/hub-sdk.js";
 import {
   isBoard as _isBoard, timesToMinutes, durationHours,
-  hasConflict, isWithinLimits, isWithinBookingWindow,
+  hasConflict, isWithinLimits, isWithinBookingWindow, searchableFields,
 } from "./logic.js";
 
 const CONTEXT = window.__CONTEXT_URL ?? "";
@@ -260,6 +267,7 @@ let reviewMap    = new Map();
 let memberMap    = new Map();
 let amenityMap   = new Map();
 let view         = "amenities";
+let searchQ = "";       // in-app search (see logic.js searchableFields)
 let selectedAmenity = null;
 let detailDate   = todayStr();
 let modalEl      = null;
@@ -427,6 +435,16 @@ async function loadReservations() {
 
 // ── Render ────────────────────────────────────────────────────────────────────
 
+// render() rewrites the whole shell, so put the caret back after typing.
+document.addEventListener("input", (e) => {
+  if (e.target.id !== "search") return;
+  searchQ = e.target.value;
+  const caret = e.target.selectionStart;
+  render();
+  const next = document.getElementById("search");
+  if (next) { next.focus(); next.setSelectionRange(caret, caret); }
+});
+
 function render() {
   applyEffectiveStatus();
   const board = amIBoard();
@@ -470,9 +488,14 @@ function renderTabs(board, pendingCount) {
 // ── View: Amenities grid ──────────────────────────────────────────────────────
 
 function renderAmenities(board) {
-  const visible = amenities.filter(a => a.is_active || board);
-  if (!visible.length) {
+  const all = amenities.filter(a => a.is_active || board);
+  if (!all.length) {
     return `<div class="empty">No amenities configured yet.${board ? "<br>Use ⚙️ to add one." : ""}</div>`;
+  }
+  const searchRow = `<div class="search-row"><input id="search" class="search-input" type="search" placeholder="Search amenities…" aria-label="Search amenities" value="${esc(searchQ)}" /></div>`;
+  const visible = searchQ ? all.filter(a => searchMatch(searchQ, searchableFields(a))) : all;
+  if (!visible.length) {
+    return `${searchRow}<div class="empty">No amenities match "${esc(searchQ)}".</div>`;
   }
   const today = todayStr();
   // Pre-index today's active reservations by amenity_id — O(n) once instead of O(n) per card
@@ -483,7 +506,7 @@ function renderAmenities(board) {
       todayResMap.get(r.amenity_id).push(r);
     }
   }
-  return `<div class="amenity-grid">${visible.map(a => {
+  return `${searchRow}<div class="amenity-grid">${visible.map(a => {
     const todayRes = todayResMap.get(a.id) ?? [];
     let availHtml;
     if (!a.is_active) {
