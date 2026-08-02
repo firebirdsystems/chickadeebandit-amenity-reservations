@@ -252,6 +252,22 @@ import {
 const CONTEXT = window.__CONTEXT_URL ?? "";
 const DB      = window.__DB_URL      ?? "";
 const ME      = window.__CURRENT_MEMBER ?? null;
+const EVENTS  = window.__EVENTS_URL  ?? "";
+
+// Best-effort: the row is already written, so a failed publish is not fatal.
+async function publishEvent(type, subjectId, payload = {}) {
+  if (!EVENTS) return;
+  try {
+    await fetch(EVENTS, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type, subject_id: subjectId, payload }),
+    });
+  } catch {
+    // ignored on purpose
+  }
+}
+
 const APP_ID  = window.__APP_ID ?? "amenity-reservations";
 // Hub admin flag — distinct from board membership. A hub admin must be able to
 // reach the admin view to appoint the board group even before one exists (and
@@ -1053,6 +1069,18 @@ window.submitBooking = async function() {
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [id, a.id, ME.id, date, startTime, endTime, guests, notes, status, now, now]
   ).catch((e) => { showError(e); reloadReservations(); });
+
+  // Reservations default to visibility 'everyone' - the amenity calendar is a
+  // shared community board - so the bus audience matches the row policy.
+  publishEvent("amenity.reserved", id, {
+    amenity_id: a.id,
+    amenity: a.name,
+    date,
+    start_time: startTime,
+    end_time: endTime,
+    reserved_by: ME.id,
+    status,
+  });
 
   if (status === "pending") {
     fetch(window.__NOTIFY_URL ?? "/api/notifications/send", {

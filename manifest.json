@@ -23,6 +23,24 @@
     "settings_table": "settings",
     "keys": ["board_group_id"]
   },
+  "glance": {
+    "source": {
+      "kind": "sql",
+      "query": "SELECT COUNT(*) AS n FROM app_amenity_reservations__reservations WHERE reserved_by = :me AND date >= :today AND status IN ('confirmed', 'pending') LIMIT 1"
+    },
+    "display": {
+      "template": "badge",
+      "count": "n",
+      "label": "reservations coming up",
+      "severity": "info"
+    }
+  },
+  "publishes": [
+    "amenity.reserved"
+  ],
+  "publish_acls": {
+    "amenity.reserved": { "require_role": "member" }
+  },
   "row_policies": {
     "reservations": {
       "kind": "owner_or_visibility",
