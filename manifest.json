@@ -10,6 +10,11 @@
   "tags": ["amenities", "reservations", "booking", "hoa", "facilities"],
   "icon": "🏊",
   "storage": "db",
+  "preload": {
+    "settings": {"sql": "SELECT value FROM app_amenity_reservations__settings WHERE key = 'board_group_id' LIMIT 1"},
+    "reviews": {"sql": "SELECT reservation_id, decision, reviewed_by, reviewed_at FROM app_amenity_reservations__reviews"},
+    "amenities": {"sql": "SELECT * FROM app_amenity_reservations__amenities ORDER BY name"}
+  },
   "data_access": {
     "reads": ["family.members", "family.groups"],
     "writes": []
