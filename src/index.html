@@ -1095,15 +1095,11 @@ window.submitBooking = async function() {
     }).catch(() => {});
   }
 
-  fetch(window.__ACTIVITY_URL ?? "/api/activity", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      type: "amenity_reserved",
-      description: `${ME.name} ${status === "pending" ? "requested" : "booked"} ${a.name} on ${fmtDate(date)}`,
-      metadata: { deepLink: { appId: APP_ID, params: { view: "mine" } } },
-    }),
-  }).catch(() => {});
+  // No activity-feed write here. /api/activity accepts only the hub's own
+  // closed ActivityType union (CALLER_ALLOWED_ACTIVITY_TYPES); "amenity_reserved"
+  // is not in it, so this POSTed a 403 on every reservation and no household
+  // ever saw the entry — a fetch does not reject on 4xx, so the .catch() hid it.
+  // The amenity.reserved event published above is the sink that works.
 };
 
 window.cancelReservation = async function(id) {
