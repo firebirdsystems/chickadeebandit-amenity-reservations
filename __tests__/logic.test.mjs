@@ -135,25 +135,41 @@ test("other members' reservations do not count toward my limit", () => {
 
 // ── isWithinBookingWindow ──────────────────────────────────────────────────────
 
+// The day is passed in explicitly — it is the household's, from hub-sdk
+// `hubToday()`, in the browser. Pinning it here also makes these deterministic:
+// they used to derive the boundary with `toISOString()` off an ambient `new
+// Date()`, which is the very UTC idiom the implementation had to stop using.
+const TODAY = "2026-06-15";
+
 test("today is within any booking window", () => {
-  const today = new Date().toISOString().slice(0, 10);
-  expect(isWithinBookingWindow(today, 30)).toBe(true);
+  expect(isWithinBookingWindow(TODAY, 30, TODAY)).toBe(true);
 });
 
 test("past date is outside window", () => {
-  expect(isWithinBookingWindow("2020-01-01", 30)).toBe(false);
+  expect(isWithinBookingWindow("2020-01-01", 30, TODAY)).toBe(false);
 });
 
 test("date just beyond window is outside", () => {
-  const beyond = new Date();
-  beyond.setDate(beyond.getDate() + 31);
-  expect(isWithinBookingWindow(beyond.toISOString().slice(0, 10), 30)).toBe(false);
+  expect(isWithinBookingWindow("2026-07-16", 30, TODAY)).toBe(false);
 });
 
 test("date exactly at window boundary is within", () => {
-  const boundary = new Date();
-  boundary.setDate(boundary.getDate() + 30);
-  expect(isWithinBookingWindow(boundary.toISOString().slice(0, 10), 30)).toBe(true);
+  expect(isWithinBookingWindow("2026-07-15", 30, TODAY)).toBe(true);
+});
+
+test("the window crosses a month end without drifting", () => {
+  // Calendar arithmetic, not a fixed 86_400_000 step: a DST boundary inside the
+  // window used to move the far edge by an hour and, at the extreme, a day.
+  expect(isWithinBookingWindow("2026-04-14", 30, "2026-03-15")).toBe(true);
+  expect(isWithinBookingWindow("2026-04-15", 30, "2026-03-15")).toBe(false);
+});
+
+test("falls back to the device calendar, never UTC, when no day is passed", () => {
+  // The regression: west of Greenwich, UTC "today" is tomorrow's date all
+  // evening, so a same-day booking was refused as being in the past.
+  const d = new Date();
+  const deviceToday = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  expect(isWithinBookingWindow(deviceToday, 30)).toBe(true);
 });
 
 describe("searchableFields", () => {

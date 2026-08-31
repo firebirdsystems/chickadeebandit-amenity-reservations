@@ -243,7 +243,7 @@
   <div id="root"><div class="loading">Loading…</div></div>
 </div>
 <script type="module">
-import { memberColor, initial, esc, isAdult, hubConfirm, createDbHelper, searchMatch } from "/hub-sdk.js";
+import { memberColor, initial, esc, isAdult, hubConfirm, createDbHelper, searchMatch, hubToday as todayStr } from "/hub-sdk.js";
 import {
   isBoard as _isBoard, timesToMinutes, durationHours,
   hasConflict, isWithinLimits, isWithinBookingWindow, searchableFields,
@@ -299,11 +299,14 @@ let bkEndSlot    = -1;
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-function todayStr() { return new Date().toISOString().slice(0, 10); }
 
 function addDays(dateStr, n) {
-  const d = new Date(dateStr + "T12:00:00");
-  d.setDate(d.getDate() + n);
+  // Anchored at UTC midnight and stepped with setUTCDate, so the arithmetic is
+  // pure calendar arithmetic: `new Date(str + "T12:00:00")` is a LOCAL instant
+  // and `toISOString()` then reads it back in UTC, which lands on the wrong day
+  // for offsets past ±12h and drifts across a DST boundary.
+  const d = new Date(dateStr + "T00:00:00Z");
+  d.setUTCDate(d.getUTCDate() + n);
   return d.toISOString().slice(0, 10);
 }
 
@@ -490,7 +493,7 @@ function renderHeader(board) {
 
 function renderTabs(board, pendingCount) {
   const t = (label, v, badge = 0) =>
-    `<button class="tab ${view === v || (v === "amenities" && view === "detail") ? "active" : ""}" onclick="setView('${v}')">
+    `<button class="tab ${view === v || (v === "amenities" && view === "detail") ? "active" : ""}" data-testid="tab" data-tab-id="${esc(v)}" onclick="setView('${v}')">
        ${esc(label)}${badge ? `<span class="badge-count">${badge}</span>` : ""}
      </button>`;
   return `<div class="tabs">
@@ -538,7 +541,7 @@ function renderAmenities(board) {
     } else {
       availHtml = `<div class="amenity-avail avail-ok">✓ Available today</div>`;
     }
-    return `<div class="amenity-card" data-act="openDetail" data-id="${esc(a.id)}">
+    return `<div class="amenity-card" data-testid="amenity-card" data-amenity-id="${esc(a.id)}" data-amenity-active="${a.is_active ? "1" : "0"}" data-act="openDetail" data-id="${esc(a.id)}">
       <div class="amenity-icon">${esc(a.icon)}</div>
       <div class="amenity-name">${esc(a.name)}</div>
       ${a.location ? `<div class="amenity-loc">📍 ${esc(a.location)}</div>` : ""}
@@ -1038,7 +1041,7 @@ window.submitBooking = async function() {
   const dur = durationHours(startTime, endTime);
   if (dur < a.min_duration_hours) { showErr(`Minimum booking duration is ${a.min_duration_hours} hr${a.min_duration_hours !== 1 ? "s" : ""}.`); return; }
   if (dur > a.max_duration_hours) { showErr(`Maximum booking duration is ${a.max_duration_hours} hr${a.max_duration_hours !== 1 ? "s" : ""}.`); return; }
-  if (!isWithinBookingWindow(date, a.booking_window_days)) { showErr("That date is outside the booking window."); return; }
+  if (!isWithinBookingWindow(date, a.booking_window_days, todayStr())) { showErr("That date is outside the booking window."); return; }
 
   const amenityResForDate = reservations.filter(r => r.amenity_id === a.id && r.date === date);
   if (hasConflict(startTime, endTime, amenityResForDate, a.capacity)) {

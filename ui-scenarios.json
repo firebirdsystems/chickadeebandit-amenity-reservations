@@ -1,0 +1,209 @@
+{
+  "scenarios": [
+    {
+      "name": "an inactive amenity is withheld from a member's grid and rendered for the configured board",
+      "members": {
+        "viewer": "adult",
+        "member": "adult"
+      },
+      "steps": [
+        {
+          "action": "seedGroup",
+          "group": "social",
+          "name": "Social Committee",
+          "members": [
+            "member"
+          ]
+        },
+        {
+          "action": "seedGroup",
+          "group": "board",
+          "name": "Board",
+          "members": [
+            "viewer"
+          ]
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_amenity_reservations__settings (key, value) VALUES ('board_group_id', ?)",
+          "params": [
+            "{{group:social}}"
+          ]
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_amenity_reservations__amenities (id, name, description, icon, location, capacity, booking_window_days, max_duration_hours, min_duration_hours, max_per_household_per_month, requires_approval, is_active, visibility, created_by, created_at, updated_at) VALUES (?, ?, ?, '\ud83c\udfca', ?, 0, 30, 4, 0.5, 4, 0, 1, 'everyone', ?, datetime('now'), datetime('now'))",
+          "params": [
+            "ui-amen-on",
+            "Pool cabana",
+            "Bookable by any resident.",
+            "Behind the clubhouse",
+            "{{viewer}}"
+          ]
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_amenity_reservations__amenities (id, name, description, icon, location, capacity, booking_window_days, max_duration_hours, min_duration_hours, max_per_household_per_month, requires_approval, is_active, visibility, created_by, created_at, updated_at) VALUES (?, ?, ?, '\ud83c\udfca', ?, 0, 30, 4, 0.5, 4, 0, 0, 'everyone', ?, datetime('now'), datetime('now'))",
+          "params": [
+            "ui-amen-off",
+            "Tennis court (resurfacing)",
+            "Bookable by any resident.",
+            "Behind the clubhouse",
+            "{{viewer}}"
+          ]
+        },
+        {
+          "action": "open",
+          "as": "viewer"
+        },
+        {
+          "action": "expectVisible",
+          "as": "viewer",
+          "selector": "[data-testid=\"amenity-card\"][data-amenity-id=\"ui-amen-on\"]"
+        },
+        {
+          "action": "expectCount",
+          "as": "viewer",
+          "selector": "[data-testid=\"amenity-card\"][data-amenity-id=\"ui-amen-off\"]",
+          "count": 0
+        },
+        {
+          "action": "expectCount",
+          "as": "viewer",
+          "selector": "[data-testid=\"amenity-card\"]",
+          "count": 1
+        },
+        {
+          "action": "expectNoText",
+          "as": "viewer",
+          "text": "Tennis court (resurfacing)"
+        },
+        {
+          "action": "seedRaw",
+          "sql": "UPDATE app_amenity_reservations__settings SET value = ? WHERE key = 'board_group_id'",
+          "params": [
+            "{{group:board}}"
+          ]
+        },
+        {
+          "action": "reload",
+          "as": "viewer"
+        },
+        {
+          "action": "expectVisible",
+          "as": "viewer",
+          "selector": "[data-testid=\"amenity-card\"][data-amenity-id=\"ui-amen-on\"]"
+        },
+        {
+          "action": "expectVisible",
+          "as": "viewer",
+          "selector": "[data-testid=\"amenity-card\"][data-amenity-id=\"ui-amen-off\"]"
+        },
+        {
+          "action": "expectCount",
+          "as": "viewer",
+          "selector": "[data-testid=\"amenity-card\"]",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "name": "the All and Pending tabs follow the configured board group, not membership of any group",
+      "members": {
+        "viewer": "adult",
+        "member": "adult"
+      },
+      "steps": [
+        {
+          "action": "seedGroup",
+          "group": "social",
+          "name": "Social Committee",
+          "members": [
+            "member"
+          ]
+        },
+        {
+          "action": "seedGroup",
+          "group": "board",
+          "name": "Board",
+          "members": [
+            "viewer"
+          ]
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_amenity_reservations__settings (key, value) VALUES ('board_group_id', ?)",
+          "params": [
+            "{{group:social}}"
+          ]
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_amenity_reservations__amenities (id, name, description, icon, location, capacity, booking_window_days, max_duration_hours, min_duration_hours, max_per_household_per_month, requires_approval, is_active, visibility, created_by, created_at, updated_at) VALUES (?, ?, ?, '\ud83c\udfca', ?, 0, 30, 4, 0.5, 4, 0, 1, 'everyone', ?, datetime('now'), datetime('now'))",
+          "params": [
+            "ui-amen-on",
+            "Pool cabana",
+            "Bookable by any resident.",
+            "Behind the clubhouse",
+            "{{viewer}}"
+          ]
+        },
+        {
+          "action": "open",
+          "as": "viewer"
+        },
+        {
+          "action": "expectVisible",
+          "as": "viewer",
+          "selector": "[data-testid=\"amenity-card\"][data-amenity-id=\"ui-amen-on\"]"
+        },
+        {
+          "action": "expectCount",
+          "as": "viewer",
+          "selector": "[data-testid=\"tab\"][data-tab-id=\"pending\"]",
+          "count": 0
+        },
+        {
+          "action": "expectCount",
+          "as": "viewer",
+          "selector": "[data-testid=\"tab\"][data-tab-id=\"all\"]",
+          "count": 0
+        },
+        {
+          "action": "expectCount",
+          "as": "viewer",
+          "selector": "[data-testid=\"tab\"]",
+          "count": 2
+        },
+        {
+          "action": "seedRaw",
+          "sql": "UPDATE app_amenity_reservations__settings SET value = ? WHERE key = 'board_group_id'",
+          "params": [
+            "{{group:board}}"
+          ]
+        },
+        {
+          "action": "reload",
+          "as": "viewer"
+        },
+        {
+          "action": "expectVisible",
+          "as": "viewer",
+          "selector": "[data-testid=\"amenity-card\"][data-amenity-id=\"ui-amen-on\"]"
+        },
+        {
+          "action": "expectCount",
+          "as": "viewer",
+          "selector": "[data-testid=\"tab\"][data-tab-id=\"pending\"]",
+          "count": 1
+        },
+        {
+          "action": "expectCount",
+          "as": "viewer",
+          "selector": "[data-testid=\"tab\"]",
+          "count": 4
+        }
+      ]
+    }
+  ]
+}

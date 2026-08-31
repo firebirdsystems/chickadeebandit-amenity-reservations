@@ -76,12 +76,21 @@ export function isWithinLimits(memberId, amenityId, newDate, reservations, maxPe
  * Returns true if `date` (YYYY-MM-DD) falls within today through
  * today + windowDays (inclusive).
  */
-export function isWithinBookingWindow(date, windowDays) {
-  const today = new Date().toISOString().slice(0, 10);
-  const limit = new Date();
-  limit.setDate(limit.getDate() + windowDays);
-  const limitStr = limit.toISOString().slice(0, 10);
-  return date >= today && date <= limitStr;
+export function isWithinBookingWindow(date, windowDays, today = undefined) {
+  // `today` is the household's day, passed in by the browser (hub-sdk
+  // `hubToday()`); the fallback is the DEVICE's calendar, never UTC, which
+  // named yesterday all evening west of Greenwich and refused a same-day
+  // booking. The window end is calendar arithmetic anchored at UTC midnight, so
+  // it cannot drift across a DST boundary.
+  const from = today ?? localToday();
+  const limit = new Date(from + "T00:00:00Z");
+  limit.setUTCDate(limit.getUTCDate() + windowDays);
+  return date >= from && date <= limit.toISOString().slice(0, 10);
+}
+
+function localToday() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
 /**
