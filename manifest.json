@@ -12,7 +12,8 @@
   "storage": "db",
   "preload": {
     "settings": {"sql": "SELECT value FROM app_amenity_reservations__settings WHERE key = 'board_group_id' LIMIT 1"},
-    "reviews": {"sql": "SELECT reservation_id, decision, reviewed_by, reviewed_at FROM app_amenity_reservations__reviews"},
+    "reviews": {"sql": "SELECT v.reservation_id, v.decision, v.reviewed_by, v.reviewed_at FROM app_amenity_reservations__reviews v JOIN app_amenity_reservations__reservations r ON r.id = v.reservation_id AND r.date >= date(?, '-30 days')", "params": [":today"]},
+    "reservations": {"sql": "SELECT * FROM app_amenity_reservations__reservations WHERE date >= date(?, '-30 days') ORDER BY date, start_time", "params": [":today"]},
     "amenities": {"sql": "SELECT * FROM app_amenity_reservations__amenities ORDER BY name"}
   },
   "data_access": {

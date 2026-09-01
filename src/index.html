@@ -410,7 +410,24 @@ async function loadSettings() {
 
 async function loadReviews() {
   if (!DB) { reviewMap = new Map(); return; }
-  const r = await db(`SELECT reservation_id, decision, reviewed_by, reviewed_at FROM app_amenity_reservations__reviews`);
+  // Scoped to exactly the reservations loadReservations() reads. A review is
+  // only ever consulted through reviewMap.get(r.id) for a loaded reservation,
+  // so every review outside that window was downloaded on each launch to be
+  // looked up by nothing — and this table grows one row per board decision,
+  // forever, while the reservations it describes roll out of the window.
+  //
+  // A JOIN, not `reservation_id IN (SELECT ...)`: the row-policy rewriter fails
+  // closed on a governed table named only inside a subquery, whereas a joined
+  // table is a top-level reference and keeps its policy applied — which matters
+  // here, because `reviews` is inherit_visibility on `reservations`.
+  //
+  // The window is computed in SQL from the household-local date rather than
+  // passed as a precomputed cutoff, so this text can be declared in
+  // manifest.preload (which binds only `:me` / `:today`).
+  const r = await db(
+    `SELECT v.reservation_id, v.decision, v.reviewed_by, v.reviewed_at FROM app_amenity_reservations__reviews v JOIN app_amenity_reservations__reservations r ON r.id = v.reservation_id AND r.date >= date(?, '-30 days')`,
+    [todayStr()]
+  );
   reviewMap = new Map((r.rows ?? []).map(rv => [rv.reservation_id, rv]));
 }
 
@@ -444,10 +461,13 @@ async function loadAmenities() {
 
 async function loadReservations() {
   if (!DB) { reservations = DEMO_RESERVATIONS; return; }
-  const cutoff = addDays(todayStr(), -30);
+  // The 30-day window lives in the SQL, not in a precomputed cutoff param, so
+  // this statement and the reviews read above express the SAME boundary in the
+  // same words — and so both can be declared in manifest.preload, which resolves
+  // `:today` to the household-local date.
   const r = await db(
-    `SELECT * FROM app_amenity_reservations__reservations WHERE date >= ? ORDER BY date, start_time`,
-    [cutoff]
+    `SELECT * FROM app_amenity_reservations__reservations WHERE date >= date(?, '-30 days') ORDER BY date, start_time`,
+    [todayStr()]
   );
   reservations = r.rows;
 }
@@ -639,6 +659,11 @@ function renderMine() {
   if (!mine.length) return `<div class="empty">You have no reservations yet.<br>Browse amenities to book one.</div>`;
 
   const upcoming = mine.filter(r => r.date >= today && r.status !== "cancelled" && r.status !== "denied");
+  // `mine` is ascending, so the Past list is reversed before it is capped at 10
+  // below — sliced as-is it showed a member's TEN OLDEST reservations under a
+  // "Past & Cancelled" heading, and grew less useful the longer they used the
+  // app. It also means the reservations read's 30-day window costs nothing
+  // here: the ten most recent past bookings are the ones inside it.
   const past     = mine.filter(r => r.date < today || r.status === "cancelled" || r.status === "denied");
 
   const card = (r, allowCancel) => {
@@ -667,7 +692,7 @@ function renderMine() {
     ${upcoming.length
       ? `<div class="section-title">Upcoming</div>${upcoming.map(r => card(r, true)).join("")}`
       : `<div style="color:var(--muted);font-size:.88rem;margin-bottom:16px">No upcoming reservations.</div>`}
-    ${past.length ? `<div class="section-title" style="margin-top:${upcoming.length ? 16 : 0}px">Past &amp; Cancelled</div>${past.slice(0, 10).map(r => card(r, false)).join("")}` : ""}
+    ${past.length ? `<div class="section-title" style="margin-top:${upcoming.length ? 16 : 0}px">Past &amp; Cancelled</div>${[...past].reverse().slice(0, 10).map(r => card(r, false)).join("")}` : ""}
   `;
 }
 
