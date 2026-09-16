@@ -1155,10 +1155,13 @@ async function recordReview(id, decision) {
   reviewMap.set(id, { reservation_id: id, decision, reviewed_by: ME.id, reviewed_at: now });
   applyEffectiveStatus();
   render();
-  return db(
-    `INSERT OR REPLACE INTO app_amenity_reservations__reviews (reservation_id, decision, reviewed_by, reviewed_at) VALUES (?, ?, ?, ?)`,
-    [id, decision, ME.id, now]
-  ).catch((e) => { showError(e); reloadReservations(); });
+  return db.batch([
+    { sql: `DELETE FROM app_amenity_reservations__reviews WHERE reservation_id = ?`, params: [id] },
+    {
+      sql: `INSERT INTO app_amenity_reservations__reviews (reservation_id, decision, reviewed_by, reviewed_at) VALUES (?, ?, ?, ?)`,
+      params: [id, decision, ME.id, now],
+    },
+  ]).then(() => true).catch((e) => { showError(e); reloadReservations(); return false; });
 }
 
 window.approveReservation = async function(id) {
@@ -1166,6 +1169,7 @@ window.approveReservation = async function(id) {
   const r = reservations.find(x => x.id === id);
   if (!r) return;
   const a = amenityMap.get(r.amenity_id);
+  if (!await recordReview(id, "confirmed")) return;
   fetch(window.__NOTIFY_URL ?? "/api/notifications/send", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -1175,7 +1179,6 @@ window.approveReservation = async function(id) {
       url: `/run/${APP_ID}?view=mine`,
     }),
   }).catch(() => {});
-  await recordReview(id, "confirmed");
 };
 
 window.denyReservation = async function(id) {
@@ -1185,6 +1188,7 @@ window.denyReservation = async function(id) {
   const r = reservations.find(x => x.id === id);
   if (!r) return;
   const a = amenityMap.get(r.amenity_id);
+  if (!await recordReview(id, "denied")) return;
   fetch(window.__NOTIFY_URL ?? "/api/notifications/send", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -1194,7 +1198,6 @@ window.denyReservation = async function(id) {
       url: `/run/${APP_ID}?view=mine`,
     }),
   }).catch(() => {});
-  await recordReview(id, "denied");
 };
 
 // ── Admin actions ─────────────────────────────────────────────────────────────
