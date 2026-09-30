@@ -18,6 +18,189 @@
           "expect": { "status": 403 }
         }
       ]
+    },
+    {
+      "name": "a child can book a reservation as themselves but cannot alter or cancel an adult's reservation",
+      "members": { "kid": "child", "parent": "adult" },
+      "steps": [
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, status, visibility, created_at, updated_at) VALUES ('r-parent', 'pool', ?, '2026-06-01', '10:00', '12:00', 'confirmed', 'everyone', '2026-01-01T00:00:00Z', '2026-01-01T00:00:00Z')",
+          "params": ["{{parent}}"]
+        },
+        {
+          "action": "db",
+          "as": "kid",
+          "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, created_at, updated_at) VALUES ('r-kid', 'pool', ?, '2026-06-02', '10:00', '11:00', '2026-01-01T00:00:00Z', '2026-01-01T00:00:00Z')",
+          "params": ["{{kid}}"],
+          "expect": { "status": 200 }
+        },
+        {
+          "action": "db",
+          "as": "kid",
+          "sql": "SELECT reserved_by FROM app_amenity_reservations__reservations WHERE id = 'r-kid'",
+          "expect": { "status": 200, "rowCount": 1, "rowsContain": [{ "reserved_by": "scn-kid" }] }
+        },
+        {
+          "action": "db",
+          "as": "kid",
+          "sql": "UPDATE app_amenity_reservations__reservations SET status = 'cancelled' WHERE id = 'r-parent'",
+          "expect": { "status": 200 }
+        },
+        {
+          "action": "db",
+          "as": "parent",
+          "sql": "SELECT status FROM app_amenity_reservations__reservations WHERE id = 'r-parent'",
+          "expect": { "status": 200, "rowCount": 1, "rowsContain": [{ "status": "confirmed" }] }
+        },
+        {
+          "action": "db",
+          "as": "kid",
+          "sql": "DELETE FROM app_amenity_reservations__reservations WHERE id = 'r-parent'",
+          "expect": { "status": 200 }
+        },
+        {
+          "action": "db",
+          "as": "parent",
+          "sql": "SELECT id FROM app_amenity_reservations__reservations WHERE id = 'r-parent'",
+          "expect": { "status": 200, "rowCount": 1 }
+        }
+      ]
+    },
+    {
+      "name": "a child cannot create amenities or record an approval review on a reservation",
+      "members": { "kid": "child", "parent": "adult" },
+      "steps": [
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, status, visibility, created_at, updated_at) VALUES ('r-kid', 'pool', ?, '2026-06-01', '10:00', '12:00', 'pending', 'everyone', '2026-01-01T00:00:00Z', '2026-01-01T00:00:00Z')",
+          "params": ["{{kid}}"]
+        },
+        {
+          "action": "db",
+          "as": "kid",
+          "sql": "INSERT INTO app_amenity_reservations__amenities (id, name, created_by, visibility, created_at, updated_at) VALUES ('am1', 'Pool', ?, 'everyone', '2026-01-01T00:00:00Z', '2026-01-01T00:00:00Z')",
+          "params": ["{{kid}}"],
+          "expect": { "status": 403 }
+        },
+        {
+          "action": "db",
+          "as": "kid",
+          "sql": "INSERT INTO app_amenity_reservations__reviews (reservation_id, decision, reviewed_by, reviewed_at) VALUES ('r-kid', 'approved', ?, '2026-01-02T00:00:00Z')",
+          "params": ["{{kid}}"],
+          "expect": { "status": 403 }
+        }
+      ]
+    },
+    {
+      "name": "a board-group member creates and edits amenities; a plain adult outside the group is refused",
+      "members": { "board": "adult", "member": "adult" },
+      "steps": [
+        { "action": "seedGroup", "group": "board", "name": "Board", "members": ["board"] },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_amenity_reservations__settings (key, value) VALUES ('board_group_id', ?)",
+          "params": ["{{group:board}}"]
+        },
+        {
+          "action": "db",
+          "as": "board",
+          "sql": "INSERT INTO app_amenity_reservations__amenities (id, name, capacity, visibility, created_by, created_at, updated_at) VALUES (?, ?, ?, 'everyone', ?, ?, ?)",
+          "params": ["am-pool", "Pool", 20, "{{board}}", "2026-01-01T00:00:00Z", "2026-01-01T00:00:00Z"],
+          "expect": { "status": 200 }
+        },
+        {
+          "action": "db",
+          "as": "member",
+          "sql": "INSERT INTO app_amenity_reservations__amenities (id, name, capacity, visibility, created_by, created_at, updated_at) VALUES (?, ?, ?, 'everyone', ?, ?, ?)",
+          "params": ["am-gym", "Gym", 10, "{{member}}", "2026-01-01T00:00:00Z", "2026-01-01T00:00:00Z"],
+          "expect": { "status": 403 }
+        },
+        {
+          "action": "db",
+          "as": "member",
+          "sql": "UPDATE app_amenity_reservations__amenities SET capacity = 1 WHERE id = ?",
+          "params": ["am-pool"],
+          "expect": { "status": 403 }
+        },
+        {
+          "action": "db",
+          "as": "board",
+          "sql": "UPDATE app_amenity_reservations__amenities SET capacity = 25 WHERE id = ?",
+          "params": ["am-pool"],
+          "expect": { "status": 200 }
+        },
+        {
+          "action": "db",
+          "as": "member",
+          "sql": "SELECT id, capacity FROM app_amenity_reservations__amenities",
+          "expect": { "status": 200, "rowCount": 1, "rowsContain": [{ "id": "am-pool", "capacity": 25 }] }
+        }
+      ]
+    },
+    {
+      "name": "a board-group member reviews and edits another member's reservation; a plain adult outside the group cannot",
+      "members": { "board": "adult", "member": "adult", "resident": "adult" },
+      "steps": [
+        { "action": "seedGroup", "group": "board", "name": "Board", "members": ["board"] },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_amenity_reservations__settings (key, value) VALUES ('board_group_id', ?)",
+          "params": ["{{group:board}}"]
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_amenity_reservations__amenities (id, name, visibility, created_by, created_at, updated_at) VALUES ('am-hall', 'Hall', 'everyone', ?, '2026-01-01T00:00:00Z', '2026-01-01T00:00:00Z')",
+          "params": ["{{board}}"]
+        },
+        {
+          "action": "seedRaw",
+          "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, status, visibility, created_at, updated_at) VALUES ('rs1', 'am-hall', ?, '2026-10-10', '10:00', '12:00', 'pending', 'everyone', '2026-01-01T00:00:00Z', '2026-01-01T00:00:00Z')",
+          "params": ["{{resident}}"]
+        },
+        {
+          "action": "db",
+          "as": "member",
+          "sql": "INSERT INTO app_amenity_reservations__reviews (reservation_id, decision, reviewed_by, reviewed_at) VALUES (?, ?, ?, ?)",
+          "params": ["rs1", "approved", "{{member}}", "2026-01-02T00:00:00Z"],
+          "expect": { "status": 403 }
+        },
+        {
+          "action": "db",
+          "as": "board",
+          "sql": "INSERT INTO app_amenity_reservations__reviews (reservation_id, decision, reviewed_by, reviewed_at) VALUES (?, ?, ?, ?)",
+          "params": ["rs1", "approved", "{{board}}", "2026-01-02T00:00:00Z"],
+          "expect": { "status": 200 }
+        },
+        {
+          "action": "db",
+          "as": "member",
+          "sql": "UPDATE app_amenity_reservations__reservations SET status = 'cancelled' WHERE id = ?",
+          "params": ["rs1"],
+          "expect": { "status": 200 }
+        },
+        {
+          "action": "db",
+          "as": "resident",
+          "sql": "SELECT status FROM app_amenity_reservations__reservations WHERE id = ?",
+          "params": ["rs1"],
+          "expect": { "status": 200, "rowCount": 1, "rowsContain": [{ "status": "pending" }] }
+        },
+        {
+          "action": "db",
+          "as": "board",
+          "sql": "UPDATE app_amenity_reservations__reservations SET status = 'confirmed', reviewed_by = ? WHERE id = ?",
+          "params": ["{{board}}", "rs1"],
+          "expect": { "status": 200 }
+        },
+        {
+          "action": "db",
+          "as": "resident",
+          "sql": "SELECT r.status, v.decision FROM app_amenity_reservations__reservations r JOIN app_amenity_reservations__reviews v ON v.reservation_id = r.id WHERE r.id = ?",
+          "params": ["rs1"],
+          "expect": { "status": 200, "rowCount": 1, "rowsContain": [{ "status": "confirmed", "decision": "approved" }] }
+        }
+      ]
     }
   ]
 }
