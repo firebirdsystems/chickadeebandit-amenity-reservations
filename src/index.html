@@ -243,7 +243,7 @@
   <div id="root"><div class="loading">Loading…</div></div>
 </div>
 <script type="module">
-import { memberColor, initial, esc, isAdult, hubConfirm, createDbHelper, searchMatch, hubToday as todayStr } from "/hub-sdk.js";
+import { memberColor, initial, esc, glyph, chickadee, isAdult, hubConfirm, createDbHelper, searchMatch, hubToday as todayStr } from "/hub-sdk.js";
 import {
   isBoard as _isBoard, timesToMinutes, durationHours,
   hasConflict, isWithinLimits, isWithinBookingWindow, searchableFields,
@@ -504,10 +504,10 @@ function render() {
 function renderHeader(board) {
   return `<header>
     <div>
-      <h1>🏘️ Amenity Reservations</h1>
+      <h1>${glyph("houses")} Amenity Reservations</h1>
       ${board ? `<div class="sub">Board access</div>` : ""}
     </div>
-    ${(board || IS_ADMIN) ? `<button class="btn-icon" onclick="setView('admin')" title="${board ? "Manage amenities" : "Board settings"}">⚙️</button>` : ""}
+    ${(board || IS_ADMIN) ? `<button class="btn-icon" onclick="setView('admin')" title="${board ? "Manage amenities" : "Board settings"}" aria-label="${board ? "Manage amenities" : "Board settings"}">${glyph("gear", { accent: "currentColor" })}</button>` : ""}
   </header>`;
 }
 
@@ -529,7 +529,7 @@ function renderTabs(board, pendingCount) {
 function renderAmenities(board) {
   const all = amenities.filter(a => a.is_active || board);
   if (!all.length) {
-    return `<div class="empty">No amenities configured yet.${board ? "<br>Use ⚙️ to add one." : ""}</div>`;
+    return `<div class="empty">${chickadee("nest", { size: 72 })}<p>No amenities configured yet.${board ? `<br>Use ${glyph("gear")} to add one.` : ""}</p></div>`;
   }
   const searchRow = `<div class="search-row"><input id="search" class="search-input" type="search" placeholder="Search amenities…" aria-label="Search amenities" value="${esc(searchQ)}" /></div>`;
   const visible = searchQ ? all.filter(a => searchMatch(searchQ, searchableFields(a))) : all;
@@ -553,18 +553,18 @@ function renderAmenities(board) {
     } else if (a.capacity === 0) {
       availHtml = todayRes.length
         ? `<div class="amenity-avail avail-full">Booked today</div>`
-        : `<div class="amenity-avail avail-ok">✓ Available today</div>`;
+        : `<div class="amenity-avail avail-ok">${glyph("tick")} Available today</div>`;
     } else if (todayRes.length >= a.capacity) {
       availHtml = `<div class="amenity-avail avail-full">Full today</div>`;
     } else if (todayRes.length > 0) {
       availHtml = `<div class="amenity-avail avail-limited">${todayRes.length}/${esc(a.capacity)} slots booked</div>`;
     } else {
-      availHtml = `<div class="amenity-avail avail-ok">✓ Available today</div>`;
+      availHtml = `<div class="amenity-avail avail-ok">${glyph("tick")} Available today</div>`;
     }
     return `<div class="amenity-card" data-testid="amenity-card" data-amenity-id="${esc(a.id)}" data-amenity-active="${a.is_active ? "1" : "0"}" data-act="openDetail" data-id="${esc(a.id)}">
       <div class="amenity-icon">${esc(a.icon)}</div>
       <div class="amenity-name">${esc(a.name)}</div>
-      ${a.location ? `<div class="amenity-loc">📍 ${esc(a.location)}</div>` : ""}
+      ${a.location ? `<div class="amenity-loc">${glyph("location")} ${esc(a.location)}</div>` : ""}
       ${availHtml}
     </div>`;
   }).join("")}</div>`;
@@ -606,7 +606,7 @@ function renderDetail(board) {
         <div class="detail-icon">${esc(a.icon)}</div>
         <div style="flex:1;min-width:0">
           <div class="detail-title">${esc(a.name)}</div>
-          ${a.location ? `<div class="detail-meta">📍 ${esc(a.location)}</div>` : ""}
+          ${a.location ? `<div class="detail-meta">${glyph("location")} ${esc(a.location)}</div>` : ""}
           ${a.description ? `<div class="detail-desc">${esc(a.description)}</div>` : ""}
         </div>
         ${board ? `<button class="btn btn-ghost btn-sm" style="flex-shrink:0" data-act="editAmenity" data-id="${esc(a.id)}">Edit</button>` : ""}
@@ -674,7 +674,7 @@ function renderMine() {
         <div class="res-info">
           <div class="res-name">${esc(a?.name ?? "Unknown Amenity")}</div>
           <div class="res-time">${esc(fmtDate(r.date))} · ${esc(fmtTime(r.start_time))}–${esc(fmtTime(r.end_time))}</div>
-          ${a?.location ? `<div class="res-time">📍 ${esc(a.location)}</div>` : ""}
+          ${a?.location ? `<div class="res-time">${glyph("location")} ${esc(a.location)}</div>` : ""}
         </div>
       </div>
       <div class="res-footer">
@@ -738,7 +738,7 @@ function renderPendingView() {
     .filter(r => r.status === "pending")
     .sort((a, b) => (a.date + a.start_time).localeCompare(b.date + b.start_time));
 
-  if (!pending.length) return `<div class="empty">No reservations awaiting approval. ✓</div>`;
+  if (!pending.length) return `<div class="empty">${chickadee("sleeping", { size: 72 })}<p>No reservations awaiting approval.</p></div>`;
 
   return pending.map(r => {
     const a = amenityMap.get(r.amenity_id);
@@ -803,7 +803,7 @@ function renderAdmin(board) {
           <label>Who has board access?</label>
           <select onchange="saveBoardGroup(this.value)">${groupOpts}</select>
         </div>
-        ${!settings.board_group_id ? `<p style="font-size:.8rem;color:var(--amber)">⚠️ Choose a board group to enable managing amenities and approving reservations. Until one is set, these board-only actions are disabled.</p>` : ""}
+        ${!settings.board_group_id ? `<p style="font-size:.8rem;color:var(--amber)">${glyph("warning")} Choose a board group to enable managing amenities and approving reservations. Until one is set, these board-only actions are disabled.</p>` : ""}
         ${!groups.length ? `<p style="font-size:.8rem;color:var(--muted)">Create groups at <strong>Settings → Groups</strong> first, then select one here to grant board access.</p>` : ""}
       </div>
     ` : ""}
