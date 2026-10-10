@@ -1,0 +1,2278 @@
+{
+  "groups": [
+    {
+      "key": "board",
+      "name": "Board",
+      "members": [
+        "{{me}}",
+        "{{partner}}"
+      ]
+    }
+  ],
+  "seed": [
+    {
+      "sql": "INSERT INTO app_amenity_reservations__settings (key, value) VALUES (?, ?)",
+      "params": [
+        "board_group_id",
+        "{{group:board}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__amenities (id, name, description, icon, location, capacity, booking_window_days, max_duration_hours, min_duration_hours, max_per_household_per_month, requires_approval, is_active, visibility, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-140 days','+0 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-140 days','+0 minutes'))",
+      "params": [
+        "perf-am-pool",
+        "Pool cabana",
+        "Shaded cabana with seating for eight.",
+        "🏊",
+        "Behind the clubhouse",
+        8,
+        30,
+        4,
+        1,
+        4,
+        0,
+        1,
+        "everyone",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__amenities (id, name, description, icon, location, capacity, booking_window_days, max_duration_hours, min_duration_hours, max_per_household_per_month, requires_approval, is_active, visibility, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-140 days','+1 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-131 days','+1 minutes'))",
+      "params": [
+        "perf-am-club",
+        "Clubhouse great room",
+        "Kitchen, tables and chairs for 60. Deposit required.",
+        "🏛️",
+        "Clubhouse, main floor",
+        60,
+        60,
+        6,
+        2,
+        2,
+        1,
+        1,
+        "everyone",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__amenities (id, name, description, icon, location, capacity, booking_window_days, max_duration_hours, min_duration_hours, max_per_household_per_month, requires_approval, is_active, visibility, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-140 days','+2 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-122 days','+2 minutes'))",
+      "params": [
+        "perf-am-tennis",
+        "Tennis court 1",
+        "Lights available until 9pm.",
+        "🎾",
+        "North courts",
+        4,
+        14,
+        2,
+        0.5,
+        8,
+        0,
+        1,
+        "everyone",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__amenities (id, name, description, icon, location, capacity, booking_window_days, max_duration_hours, min_duration_hours, max_per_household_per_month, requires_approval, is_active, visibility, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-140 days','+3 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-113 days','+3 minutes'))",
+      "params": [
+        "perf-am-pickle",
+        "Pickleball court",
+        "Paddles in the storage box.",
+        "🏓",
+        "North courts",
+        4,
+        14,
+        2,
+        0.5,
+        8,
+        0,
+        1,
+        "everyone",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__amenities (id, name, description, icon, location, capacity, booking_window_days, max_duration_hours, min_duration_hours, max_per_household_per_month, requires_approval, is_active, visibility, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-140 days','+4 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-104 days','+4 minutes'))",
+      "params": [
+        "perf-am-bbq",
+        "BBQ pavilion",
+        "Two gas grills and four picnic tables.",
+        "🍖",
+        "Lakeside lawn",
+        24,
+        30,
+        4,
+        1,
+        4,
+        0,
+        1,
+        "everyone",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__amenities (id, name, description, icon, location, capacity, booking_window_days, max_duration_hours, min_duration_hours, max_per_household_per_month, requires_approval, is_active, visibility, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-140 days','+5 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-95 days','+5 minutes'))",
+      "params": [
+        "perf-am-guest",
+        "Guest suite",
+        "One-bedroom suite for visiting family.",
+        "🛏️",
+        "Building C, unit 101",
+        4,
+        90,
+        24,
+        4,
+        2,
+        1,
+        1,
+        "everyone",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__amenities (id, name, description, icon, location, capacity, booking_window_days, max_duration_hours, min_duration_hours, max_per_household_per_month, requires_approval, is_active, visibility, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-140 days','+6 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-86 days','+6 minutes'))",
+      "params": [
+        "perf-am-gym",
+        "Fitness studio",
+        "Private class bookings only.",
+        "🏋️",
+        "Clubhouse, lower level",
+        12,
+        21,
+        2,
+        1,
+        6,
+        0,
+        1,
+        "everyone",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__amenities (id, name, description, icon, location, capacity, booking_window_days, max_duration_hours, min_duration_hours, max_per_household_per_month, requires_approval, is_active, visibility, created_by, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-140 days','+7 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-77 days','+7 minutes'))",
+      "params": [
+        "perf-am-court2",
+        "Tennis court 2 (resurfacing)",
+        "Closed for resurfacing until spring.",
+        "🎾",
+        "North courts",
+        4,
+        14,
+        2,
+        0.5,
+        8,
+        0,
+        0,
+        "everyone",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-35 days','+13 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-35 days','+13 minutes'))",
+      "params": [
+        "perf-res-001",
+        "perf-am-pool",
+        "{{partner}}",
+        "{{date:-28}}",
+        "13:00",
+        "15:00",
+        3,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-36 days','+26 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-36 days','+26 minutes'))",
+      "params": [
+        "perf-res-002",
+        "perf-am-pickle",
+        "{{adult2}}",
+        "{{date:-28}}",
+        "08:00",
+        "09:30",
+        6,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, notes, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-37 days','+39 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-37 days','+39 minutes'))",
+      "params": [
+        "perf-res-003",
+        "perf-am-gym",
+        "{{me}}",
+        "{{date:-28}}",
+        "16:00",
+        "18:00",
+        0,
+        "Family visiting from out of town.",
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-37 days','+52 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-37 days','+52 minutes'))",
+      "params": [
+        "perf-res-004",
+        "perf-am-club",
+        "{{child}}",
+        "{{date:-27}}",
+        "16:00",
+        "18:00",
+        3,
+        "pending",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reviews (reservation_id, decision, reviewed_by, reviewed_at) VALUES (?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-36 days','+52 minutes'))",
+      "params": [
+        "perf-res-004",
+        "confirmed",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-33 days','+65 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-33 days','+65 minutes'))",
+      "params": [
+        "perf-res-005",
+        "perf-am-bbq",
+        "{{partner}}",
+        "{{date:-27}}",
+        "10:00",
+        "12:00",
+        6,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, notes, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-33 days','+78 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-33 days','+78 minutes'))",
+      "params": [
+        "perf-res-006",
+        "perf-am-tennis",
+        "{{me}}",
+        "{{date:-26}}",
+        "13:00",
+        "15:00",
+        0,
+        "Birthday party, bringing our own decorations.",
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-34 days','+91 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-34 days','+91 minutes'))",
+      "params": [
+        "perf-res-007",
+        "perf-am-guest",
+        "{{adult2}}",
+        "{{date:-26}}",
+        "08:00",
+        "09:30",
+        3,
+        "pending",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reviews (reservation_id, decision, reviewed_by, reviewed_at) VALUES (?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-33 days','+91 minutes'))",
+      "params": [
+        "perf-res-007",
+        "confirmed",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-34 days','+104 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-34 days','+104 minutes'))",
+      "params": [
+        "perf-res-008",
+        "perf-am-pickle",
+        "{{child2}}",
+        "{{date:-25}}",
+        "10:00",
+        "12:00",
+        6,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, notes, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-35 days','+117 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-35 days','+117 minutes'))",
+      "params": [
+        "perf-res-009",
+        "perf-am-gym",
+        "{{me}}",
+        "{{date:-25}}",
+        "18:30",
+        "20:30",
+        0,
+        "Family visiting from out of town.",
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-31 days','+130 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-31 days','+130 minutes'))",
+      "params": [
+        "perf-res-010",
+        "perf-am-tennis",
+        "{{partner}}",
+        "{{date:-25}}",
+        "13:00",
+        "15:00",
+        3,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-31 days','+143 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-31 days','+143 minutes'))",
+      "params": [
+        "perf-res-011",
+        "perf-am-bbq",
+        "{{adult2}}",
+        "{{date:-24}}",
+        "13:00",
+        "15:00",
+        6,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, notes, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-32 days','+156 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-32 days','+156 minutes'))",
+      "params": [
+        "perf-res-012",
+        "perf-am-pool",
+        "{{me}}",
+        "{{date:-24}}",
+        "08:00",
+        "09:30",
+        0,
+        "Birthday party, bringing our own decorations.",
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-32 days','+169 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-32 days','+169 minutes'))",
+      "params": [
+        "perf-res-013",
+        "perf-am-guest",
+        "{{child}}",
+        "{{date:-23}}",
+        "10:00",
+        "12:00",
+        3,
+        "cancelled",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-33 days','+182 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-33 days','+182 minutes'))",
+      "params": [
+        "perf-res-014",
+        "perf-am-club",
+        "{{partner}}",
+        "{{date:-23}}",
+        "18:30",
+        "20:30",
+        6,
+        "pending",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reviews (reservation_id, decision, reviewed_by, reviewed_at) VALUES (?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-32 days','+182 minutes'))",
+      "params": [
+        "perf-res-014",
+        "confirmed",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, notes, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-28 days','+195 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-28 days','+195 minutes'))",
+      "params": [
+        "perf-res-015",
+        "perf-am-gym",
+        "{{me}}",
+        "{{date:-22}}",
+        "08:00",
+        "09:30",
+        0,
+        "Family visiting from out of town.",
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-29 days','+208 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-29 days','+208 minutes'))",
+      "params": [
+        "perf-res-016",
+        "perf-am-tennis",
+        "{{adult2}}",
+        "{{date:-22}}",
+        "16:00",
+        "18:00",
+        3,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-30 days','+221 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-30 days','+221 minutes'))",
+      "params": [
+        "perf-res-017",
+        "perf-am-guest",
+        "{{child2}}",
+        "{{date:-22}}",
+        "10:00",
+        "12:00",
+        6,
+        "pending",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reviews (reservation_id, decision, reviewed_by, reviewed_at) VALUES (?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-29 days','+221 minutes'))",
+      "params": [
+        "perf-res-017",
+        "confirmed",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, notes, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-30 days','+234 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-30 days','+234 minutes'))",
+      "params": [
+        "perf-res-018",
+        "perf-am-pool",
+        "{{me}}",
+        "{{date:-21}}",
+        "10:00",
+        "12:00",
+        0,
+        "Birthday party, bringing our own decorations.",
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-31 days','+247 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-31 days','+247 minutes'))",
+      "params": [
+        "perf-res-019",
+        "perf-am-pickle",
+        "{{partner}}",
+        "{{date:-21}}",
+        "18:30",
+        "20:30",
+        3,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-26 days','+260 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-26 days','+260 minutes'))",
+      "params": [
+        "perf-res-020",
+        "perf-am-club",
+        "{{adult2}}",
+        "{{date:-20}}",
+        "08:00",
+        "09:30",
+        6,
+        "pending",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reviews (reservation_id, decision, reviewed_by, reviewed_at) VALUES (?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-25 days','+260 minutes'))",
+      "params": [
+        "perf-res-020",
+        "confirmed",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, notes, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-27 days','+273 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-27 days','+273 minutes'))",
+      "params": [
+        "perf-res-021",
+        "perf-am-bbq",
+        "{{me}}",
+        "{{date:-20}}",
+        "16:00",
+        "18:00",
+        0,
+        "Family visiting from out of town.",
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-27 days','+286 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-27 days','+286 minutes'))",
+      "params": [
+        "perf-res-022",
+        "perf-am-tennis",
+        "{{child}}",
+        "{{date:-19}}",
+        "18:30",
+        "20:30",
+        3,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-28 days','+299 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-28 days','+299 minutes'))",
+      "params": [
+        "perf-res-023",
+        "perf-am-guest",
+        "{{partner}}",
+        "{{date:-19}}",
+        "13:00",
+        "15:00",
+        6,
+        "pending",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reviews (reservation_id, decision, reviewed_by, reviewed_at) VALUES (?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-27 days','+299 minutes'))",
+      "params": [
+        "perf-res-023",
+        "confirmed",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, notes, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-29 days','+312 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-29 days','+312 minutes'))",
+      "params": [
+        "perf-res-024",
+        "perf-am-club",
+        "{{me}}",
+        "{{date:-19}}",
+        "08:00",
+        "09:30",
+        0,
+        "Birthday party, bringing our own decorations.",
+        "pending",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reviews (reservation_id, decision, reviewed_by, reviewed_at) VALUES (?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-28 days','+312 minutes'))",
+      "params": [
+        "perf-res-024",
+        "confirmed",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-24 days','+325 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-24 days','+325 minutes'))",
+      "params": [
+        "perf-res-025",
+        "perf-am-pickle",
+        "{{adult2}}",
+        "{{date:-18}}",
+        "08:00",
+        "09:30",
+        3,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-25 days','+338 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-25 days','+338 minutes'))",
+      "params": [
+        "perf-res-026",
+        "perf-am-gym",
+        "{{child2}}",
+        "{{date:-18}}",
+        "16:00",
+        "18:00",
+        6,
+        "cancelled",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, notes, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-25 days','+351 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-25 days','+351 minutes'))",
+      "params": [
+        "perf-res-027",
+        "perf-am-bbq",
+        "{{me}}",
+        "{{date:-17}}",
+        "18:30",
+        "20:30",
+        0,
+        "Family visiting from out of town.",
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-26 days','+364 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-26 days','+364 minutes'))",
+      "params": [
+        "perf-res-028",
+        "perf-am-pool",
+        "{{partner}}",
+        "{{date:-17}}",
+        "13:00",
+        "15:00",
+        3,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-26 days','+377 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-26 days','+377 minutes'))",
+      "params": [
+        "perf-res-029",
+        "perf-am-guest",
+        "{{adult2}}",
+        "{{date:-16}}",
+        "16:00",
+        "18:00",
+        6,
+        "pending",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reviews (reservation_id, decision, reviewed_by, reviewed_at) VALUES (?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-25 days','+377 minutes'))",
+      "params": [
+        "perf-res-029",
+        "confirmed",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, notes, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-22 days','+390 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-22 days','+390 minutes'))",
+      "params": [
+        "perf-res-030",
+        "perf-am-club",
+        "{{me}}",
+        "{{date:-16}}",
+        "10:00",
+        "12:00",
+        0,
+        "Birthday party, bringing our own decorations.",
+        "pending",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reviews (reservation_id, decision, reviewed_by, reviewed_at) VALUES (?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-21 days','+390 minutes'))",
+      "params": [
+        "perf-res-030",
+        "confirmed",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-23 days','+403 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-23 days','+403 minutes'))",
+      "params": [
+        "perf-res-031",
+        "perf-am-bbq",
+        "{{child}}",
+        "{{date:-16}}",
+        "18:30",
+        "20:30",
+        3,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-23 days','+416 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-23 days','+416 minutes'))",
+      "params": [
+        "perf-res-032",
+        "perf-am-gym",
+        "{{partner}}",
+        "{{date:-15}}",
+        "18:30",
+        "20:30",
+        6,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, notes, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-24 days','+429 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-24 days','+429 minutes'))",
+      "params": [
+        "perf-res-033",
+        "perf-am-tennis",
+        "{{me}}",
+        "{{date:-15}}",
+        "13:00",
+        "15:00",
+        0,
+        "Family visiting from out of town.",
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-24 days','+442 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-24 days','+442 minutes'))",
+      "params": [
+        "perf-res-034",
+        "perf-am-pool",
+        "{{adult2}}",
+        "{{date:-14}}",
+        "16:00",
+        "18:00",
+        3,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-20 days','+455 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-20 days','+455 minutes'))",
+      "params": [
+        "perf-res-035",
+        "perf-am-pickle",
+        "{{child2}}",
+        "{{date:-14}}",
+        "10:00",
+        "12:00",
+        6,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, notes, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-20 days','+468 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-20 days','+468 minutes'))",
+      "params": [
+        "perf-res-036",
+        "perf-am-club",
+        "{{me}}",
+        "{{date:-13}}",
+        "13:00",
+        "15:00",
+        0,
+        "Birthday party, bringing our own decorations.",
+        "pending",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reviews (reservation_id, decision, reviewed_by, reviewed_at) VALUES (?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-19 days','+468 minutes'))",
+      "params": [
+        "perf-res-036",
+        "confirmed",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-21 days','+481 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-21 days','+481 minutes'))",
+      "params": [
+        "perf-res-037",
+        "perf-am-bbq",
+        "{{partner}}",
+        "{{date:-13}}",
+        "08:00",
+        "09:30",
+        3,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-22 days','+494 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-22 days','+494 minutes'))",
+      "params": [
+        "perf-res-038",
+        "perf-am-pool",
+        "{{adult2}}",
+        "{{date:-13}}",
+        "16:00",
+        "18:00",
+        6,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, notes, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-22 days','+507 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-22 days','+507 minutes'))",
+      "params": [
+        "perf-res-039",
+        "perf-am-tennis",
+        "{{me}}",
+        "{{date:-12}}",
+        "16:00",
+        "18:00",
+        0,
+        "Family visiting from out of town.",
+        "cancelled",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-18 days','+520 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-18 days','+520 minutes'))",
+      "params": [
+        "perf-res-040",
+        "perf-am-guest",
+        "{{child}}",
+        "{{date:-12}}",
+        "10:00",
+        "12:00",
+        3,
+        "pending",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reviews (reservation_id, decision, reviewed_by, reviewed_at) VALUES (?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-17 days','+520 minutes'))",
+      "params": [
+        "perf-res-040",
+        "confirmed",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-18 days','+533 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-18 days','+533 minutes'))",
+      "params": [
+        "perf-res-041",
+        "perf-am-pickle",
+        "{{partner}}",
+        "{{date:-11}}",
+        "13:00",
+        "15:00",
+        6,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, notes, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-19 days','+546 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-19 days','+546 minutes'))",
+      "params": [
+        "perf-res-042",
+        "perf-am-gym",
+        "{{me}}",
+        "{{date:-11}}",
+        "08:00",
+        "09:30",
+        0,
+        "Birthday party, bringing our own decorations.",
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-19 days','+559 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-19 days','+559 minutes'))",
+      "params": [
+        "perf-res-043",
+        "perf-am-bbq",
+        "{{adult2}}",
+        "{{date:-10}}",
+        "10:00",
+        "12:00",
+        3,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-20 days','+572 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-20 days','+572 minutes'))",
+      "params": [
+        "perf-res-044",
+        "perf-am-pool",
+        "{{child2}}",
+        "{{date:-10}}",
+        "18:30",
+        "20:30",
+        6,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, notes, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-16 days','+585 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-16 days','+585 minutes'))",
+      "params": [
+        "perf-res-045",
+        "perf-am-pickle",
+        "{{me}}",
+        "{{date:-10}}",
+        "13:00",
+        "15:00",
+        0,
+        "Family visiting from out of town.",
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-16 days','+598 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-16 days','+598 minutes'))",
+      "params": [
+        "perf-res-046",
+        "perf-am-guest",
+        "{{partner}}",
+        "{{date:-9}}",
+        "13:00",
+        "15:00",
+        3,
+        "pending",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reviews (reservation_id, decision, reviewed_by, reviewed_at) VALUES (?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-15 days','+598 minutes'))",
+      "params": [
+        "perf-res-046",
+        "confirmed",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-17 days','+611 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-17 days','+611 minutes'))",
+      "params": [
+        "perf-res-047",
+        "perf-am-club",
+        "{{adult2}}",
+        "{{date:-9}}",
+        "08:00",
+        "09:30",
+        6,
+        "pending",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reviews (reservation_id, decision, reviewed_by, reviewed_at) VALUES (?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-16 days','+611 minutes'))",
+      "params": [
+        "perf-res-047",
+        "confirmed",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, notes, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-17 days','+624 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-17 days','+624 minutes'))",
+      "params": [
+        "perf-res-048",
+        "perf-am-gym",
+        "{{me}}",
+        "{{date:-8}}",
+        "10:00",
+        "12:00",
+        0,
+        "Birthday party, bringing our own decorations.",
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-18 days','+637 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-18 days','+637 minutes'))",
+      "params": [
+        "perf-res-049",
+        "perf-am-tennis",
+        "{{child}}",
+        "{{date:-8}}",
+        "18:30",
+        "20:30",
+        3,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-13 days','+650 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-13 days','+650 minutes'))",
+      "params": [
+        "perf-res-050",
+        "perf-am-pool",
+        "{{partner}}",
+        "{{date:-7}}",
+        "08:00",
+        "09:30",
+        6,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, notes, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-14 days','+663 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-14 days','+663 minutes'))",
+      "params": [
+        "perf-res-051",
+        "perf-am-pickle",
+        "{{me}}",
+        "{{date:-7}}",
+        "16:00",
+        "18:00",
+        0,
+        "Family visiting from out of town.",
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-15 days','+676 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-15 days','+676 minutes'))",
+      "params": [
+        "perf-res-052",
+        "perf-am-gym",
+        "{{adult2}}",
+        "{{date:-7}}",
+        "10:00",
+        "12:00",
+        3,
+        "cancelled",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-15 days','+689 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-15 days','+689 minutes'))",
+      "params": [
+        "perf-res-053",
+        "perf-am-club",
+        "{{child2}}",
+        "{{date:-6}}",
+        "10:00",
+        "12:00",
+        6,
+        "pending",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reviews (reservation_id, decision, reviewed_by, reviewed_at) VALUES (?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-14 days','+689 minutes'))",
+      "params": [
+        "perf-res-053",
+        "confirmed",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, notes, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-16 days','+702 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-16 days','+702 minutes'))",
+      "params": [
+        "perf-res-054",
+        "perf-am-bbq",
+        "{{me}}",
+        "{{date:-6}}",
+        "18:30",
+        "20:30",
+        0,
+        "Birthday party, bringing our own decorations.",
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-11 days','+715 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-11 days','+715 minutes'))",
+      "params": [
+        "perf-res-055",
+        "perf-am-tennis",
+        "{{partner}}",
+        "{{date:-5}}",
+        "08:00",
+        "09:30",
+        3,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-12 days','+728 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-12 days','+728 minutes'))",
+      "params": [
+        "perf-res-056",
+        "perf-am-guest",
+        "{{adult2}}",
+        "{{date:-5}}",
+        "16:00",
+        "18:00",
+        6,
+        "pending",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reviews (reservation_id, decision, reviewed_by, reviewed_at) VALUES (?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-11 days','+728 minutes'))",
+      "params": [
+        "perf-res-056",
+        "confirmed",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, notes, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-12 days','+741 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-12 days','+741 minutes'))",
+      "params": [
+        "perf-res-057",
+        "perf-am-pickle",
+        "{{me}}",
+        "{{date:-4}}",
+        "18:30",
+        "20:30",
+        0,
+        "Family visiting from out of town.",
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-13 days','+754 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-13 days','+754 minutes'))",
+      "params": [
+        "perf-res-058",
+        "perf-am-gym",
+        "{{child}}",
+        "{{date:-4}}",
+        "13:00",
+        "15:00",
+        3,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-14 days','+767 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-14 days','+767 minutes'))",
+      "params": [
+        "perf-res-059",
+        "perf-am-tennis",
+        "{{partner}}",
+        "{{date:-4}}",
+        "08:00",
+        "09:30",
+        6,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, notes, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-9 days','+780 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-9 days','+780 minutes'))",
+      "params": [
+        "perf-res-060",
+        "perf-am-bbq",
+        "{{me}}",
+        "{{date:-3}}",
+        "08:00",
+        "09:30",
+        0,
+        "Birthday party, bringing our own decorations.",
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-10 days','+793 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-10 days','+793 minutes'))",
+      "params": [
+        "perf-res-061",
+        "perf-am-pool",
+        "{{adult2}}",
+        "{{date:-3}}",
+        "16:00",
+        "18:00",
+        3,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-10 days','+806 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-10 days','+806 minutes'))",
+      "params": [
+        "perf-res-062",
+        "perf-am-guest",
+        "{{child2}}",
+        "{{date:-2}}",
+        "18:30",
+        "20:30",
+        6,
+        "pending",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reviews (reservation_id, decision, reviewed_by, reviewed_at) VALUES (?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-9 days','+806 minutes'))",
+      "params": [
+        "perf-res-062",
+        "confirmed",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, notes, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-11 days','+819 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-11 days','+819 minutes'))",
+      "params": [
+        "perf-res-063",
+        "perf-am-club",
+        "{{me}}",
+        "{{date:-2}}",
+        "13:00",
+        "15:00",
+        0,
+        "Family visiting from out of town.",
+        "pending",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reviews (reservation_id, decision, reviewed_by, reviewed_at) VALUES (?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-10 days','+819 minutes'))",
+      "params": [
+        "perf-res-063",
+        "confirmed",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-11 days','+832 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-11 days','+832 minutes'))",
+      "params": [
+        "perf-res-064",
+        "perf-am-gym",
+        "{{partner}}",
+        "{{date:-1}}",
+        "16:00",
+        "18:00",
+        3,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-7 days','+845 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-7 days','+845 minutes'))",
+      "params": [
+        "perf-res-065",
+        "perf-am-tennis",
+        "{{adult2}}",
+        "{{date:-1}}",
+        "10:00",
+        "12:00",
+        6,
+        "cancelled",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, notes, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-8 days','+858 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-8 days','+858 minutes'))",
+      "params": [
+        "perf-res-066",
+        "perf-am-guest",
+        "{{me}}",
+        "{{date:-1}}",
+        "18:30",
+        "20:30",
+        0,
+        "Birthday party, bringing our own decorations.",
+        "pending",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reviews (reservation_id, decision, reviewed_by, reviewed_at) VALUES (?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-7 days','+858 minutes'))",
+      "params": [
+        "perf-res-066",
+        "denied",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-8 days','+871 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-8 days','+871 minutes'))",
+      "params": [
+        "perf-res-067",
+        "perf-am-pool",
+        "{{child}}",
+        "{{date:0}}",
+        "18:30",
+        "20:30",
+        3,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-9 days','+884 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-9 days','+884 minutes'))",
+      "params": [
+        "perf-res-068",
+        "perf-am-pickle",
+        "{{partner}}",
+        "{{date:0}}",
+        "13:00",
+        "15:00",
+        6,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, notes, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-9 days','+897 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-9 days','+897 minutes'))",
+      "params": [
+        "perf-res-069",
+        "perf-am-club",
+        "{{me}}",
+        "{{date:1}}",
+        "16:00",
+        "18:00",
+        0,
+        "Family visiting from out of town.",
+        "pending",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reviews (reservation_id, decision, reviewed_by, reviewed_at) VALUES (?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-8 days','+897 minutes'))",
+      "params": [
+        "perf-res-069",
+        "confirmed",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-5 days','+910 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-5 days','+910 minutes'))",
+      "params": [
+        "perf-res-070",
+        "perf-am-bbq",
+        "{{adult2}}",
+        "{{date:1}}",
+        "10:00",
+        "12:00",
+        3,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-5 days','+923 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-5 days','+923 minutes'))",
+      "params": [
+        "perf-res-071",
+        "perf-am-tennis",
+        "{{child2}}",
+        "{{date:2}}",
+        "13:00",
+        "15:00",
+        6,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, notes, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-6 days','+936 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-6 days','+936 minutes'))",
+      "params": [
+        "perf-res-072",
+        "perf-am-guest",
+        "{{me}}",
+        "{{date:2}}",
+        "08:00",
+        "09:30",
+        0,
+        "Birthday party, bringing our own decorations.",
+        "pending",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reviews (reservation_id, decision, reviewed_by, reviewed_at) VALUES (?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-5 days','+936 minutes'))",
+      "params": [
+        "perf-res-072",
+        "confirmed",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-7 days','+949 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-7 days','+949 minutes'))",
+      "params": [
+        "perf-res-073",
+        "perf-am-club",
+        "{{partner}}",
+        "{{date:2}}",
+        "16:00",
+        "18:00",
+        3,
+        "pending",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reviews (reservation_id, decision, reviewed_by, reviewed_at) VALUES (?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-6 days','+949 minutes'))",
+      "params": [
+        "perf-res-073",
+        "confirmed",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-7 days','+962 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-7 days','+962 minutes'))",
+      "params": [
+        "perf-res-074",
+        "perf-am-pickle",
+        "{{adult2}}",
+        "{{date:3}}",
+        "16:00",
+        "18:00",
+        6,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, notes, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-3 days','+975 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-3 days','+975 minutes'))",
+      "params": [
+        "perf-res-075",
+        "perf-am-gym",
+        "{{me}}",
+        "{{date:3}}",
+        "10:00",
+        "12:00",
+        0,
+        "Family visiting from out of town.",
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-3 days','+988 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-3 days','+988 minutes'))",
+      "params": [
+        "perf-res-076",
+        "perf-am-bbq",
+        "{{child}}",
+        "{{date:4}}",
+        "13:00",
+        "15:00",
+        3,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-4 days','+1001 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-4 days','+1001 minutes'))",
+      "params": [
+        "perf-res-077",
+        "perf-am-pool",
+        "{{partner}}",
+        "{{date:4}}",
+        "08:00",
+        "09:30",
+        6,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, notes, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-4 days','+1014 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-4 days','+1014 minutes'))",
+      "params": [
+        "perf-res-078",
+        "perf-am-guest",
+        "{{me}}",
+        "{{date:5}}",
+        "10:00",
+        "12:00",
+        0,
+        "Birthday party, bringing our own decorations.",
+        "cancelled",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-5 days','+1027 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-5 days','+1027 minutes'))",
+      "params": [
+        "perf-res-079",
+        "perf-am-club",
+        "{{adult2}}",
+        "{{date:5}}",
+        "18:30",
+        "20:30",
+        3,
+        "pending",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reviews (reservation_id, decision, reviewed_by, reviewed_at) VALUES (?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-4 days','+1027 minutes'))",
+      "params": [
+        "perf-res-079",
+        "confirmed",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-1 days','+1040 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-1 days','+1040 minutes'))",
+      "params": [
+        "perf-res-080",
+        "perf-am-bbq",
+        "{{child2}}",
+        "{{date:5}}",
+        "13:00",
+        "15:00",
+        6,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, notes, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-2 days','+1053 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-2 days','+1053 minutes'))",
+      "params": [
+        "perf-res-081",
+        "perf-am-gym",
+        "{{me}}",
+        "{{date:6}}",
+        "13:00",
+        "15:00",
+        0,
+        "Family visiting from out of town.",
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-3 days','+1066 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-3 days','+1066 minutes'))",
+      "params": [
+        "perf-res-082",
+        "perf-am-tennis",
+        "{{partner}}",
+        "{{date:6}}",
+        "08:00",
+        "09:30",
+        3,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-4 days','+1079 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-4 days','+1079 minutes'))",
+      "params": [
+        "perf-res-083",
+        "perf-am-pool",
+        "{{adult2}}",
+        "{{date:7}}",
+        "10:00",
+        "12:00",
+        6,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, notes, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-5 days','+1092 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-5 days','+1092 minutes'))",
+      "params": [
+        "perf-res-084",
+        "perf-am-pickle",
+        "{{me}}",
+        "{{date:7}}",
+        "18:30",
+        "20:30",
+        0,
+        "Birthday party, bringing our own decorations.",
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-1 days','+1105 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-1 days','+1105 minutes'))",
+      "params": [
+        "perf-res-085",
+        "perf-am-club",
+        "{{child}}",
+        "{{date:8}}",
+        "08:00",
+        "09:30",
+        3,
+        "pending",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reviews (reservation_id, decision, reviewed_by, reviewed_at) VALUES (?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','0 days','+1105 minutes'))",
+      "params": [
+        "perf-res-085",
+        "confirmed",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-2 days','+1118 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-2 days','+1118 minutes'))",
+      "params": [
+        "perf-res-086",
+        "perf-am-bbq",
+        "{{partner}}",
+        "{{date:8}}",
+        "16:00",
+        "18:00",
+        6,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, notes, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-3 days','+1131 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-3 days','+1131 minutes'))",
+      "params": [
+        "perf-res-087",
+        "perf-am-pool",
+        "{{me}}",
+        "{{date:8}}",
+        "10:00",
+        "12:00",
+        0,
+        "Family visiting from out of town.",
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-4 days','+1144 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-4 days','+1144 minutes'))",
+      "params": [
+        "perf-res-088",
+        "perf-am-tennis",
+        "{{adult2}}",
+        "{{date:9}}",
+        "10:00",
+        "12:00",
+        3,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-5 days','+1157 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-5 days','+1157 minutes'))",
+      "params": [
+        "perf-res-089",
+        "perf-am-guest",
+        "{{child2}}",
+        "{{date:9}}",
+        "18:30",
+        "20:30",
+        6,
+        "pending",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reviews (reservation_id, decision, reviewed_by, reviewed_at) VALUES (?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-4 days','+1157 minutes'))",
+      "params": [
+        "perf-res-089",
+        "confirmed",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, notes, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-1 days','+1170 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-1 days','+1170 minutes'))",
+      "params": [
+        "perf-res-090",
+        "perf-am-pickle",
+        "{{me}}",
+        "{{date:10}}",
+        "08:00",
+        "09:30",
+        0,
+        "Birthday party, bringing our own decorations.",
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-2 days','+1183 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-2 days','+1183 minutes'))",
+      "params": [
+        "perf-res-091",
+        "perf-am-gym",
+        "{{partner}}",
+        "{{date:10}}",
+        "16:00",
+        "18:00",
+        3,
+        "cancelled",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-3 days','+1196 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-3 days','+1196 minutes'))",
+      "params": [
+        "perf-res-092",
+        "perf-am-bbq",
+        "{{adult2}}",
+        "{{date:11}}",
+        "18:30",
+        "20:30",
+        6,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, notes, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-4 days','+1209 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-4 days','+1209 minutes'))",
+      "params": [
+        "perf-res-093",
+        "perf-am-pool",
+        "{{me}}",
+        "{{date:11}}",
+        "13:00",
+        "15:00",
+        0,
+        "Family visiting from out of town.",
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-5 days','+1222 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-5 days','+1222 minutes'))",
+      "params": [
+        "perf-res-094",
+        "perf-am-pickle",
+        "{{child}}",
+        "{{date:11}}",
+        "08:00",
+        "09:30",
+        3,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-1 days','+1235 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-1 days','+1235 minutes'))",
+      "params": [
+        "perf-res-095",
+        "perf-am-guest",
+        "{{partner}}",
+        "{{date:12}}",
+        "08:00",
+        "09:30",
+        6,
+        "pending",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reviews (reservation_id, decision, reviewed_by, reviewed_at) VALUES (?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','0 days','+1235 minutes'))",
+      "params": [
+        "perf-res-095",
+        "confirmed",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, notes, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-2 days','+1248 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-2 days','+1248 minutes'))",
+      "params": [
+        "perf-res-096",
+        "perf-am-club",
+        "{{me}}",
+        "{{date:12}}",
+        "16:00",
+        "18:00",
+        0,
+        "Birthday party, bringing our own decorations.",
+        "pending",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-3 days','+1261 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-3 days','+1261 minutes'))",
+      "params": [
+        "perf-res-097",
+        "perf-am-gym",
+        "{{adult2}}",
+        "{{date:13}}",
+        "18:30",
+        "20:30",
+        3,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-4 days','+1274 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-4 days','+1274 minutes'))",
+      "params": [
+        "perf-res-098",
+        "perf-am-tennis",
+        "{{child2}}",
+        "{{date:13}}",
+        "13:00",
+        "15:00",
+        6,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, notes, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-5 days','+1287 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-5 days','+1287 minutes'))",
+      "params": [
+        "perf-res-099",
+        "perf-am-pool",
+        "{{me}}",
+        "{{date:14}}",
+        "16:00",
+        "18:00",
+        0,
+        "Family visiting from out of town.",
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-1 days','+1300 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-1 days','+1300 minutes'))",
+      "params": [
+        "perf-res-100",
+        "perf-am-pickle",
+        "{{partner}}",
+        "{{date:14}}",
+        "10:00",
+        "12:00",
+        3,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-2 days','+1313 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-2 days','+1313 minutes'))",
+      "params": [
+        "perf-res-101",
+        "perf-am-gym",
+        "{{adult2}}",
+        "{{date:14}}",
+        "18:30",
+        "20:30",
+        6,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, notes, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-3 days','+1326 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-3 days','+1326 minutes'))",
+      "params": [
+        "perf-res-102",
+        "perf-am-club",
+        "{{me}}",
+        "{{date:15}}",
+        "18:30",
+        "20:30",
+        0,
+        "Birthday party, bringing our own decorations.",
+        "pending",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-4 days','+1339 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-4 days','+1339 minutes'))",
+      "params": [
+        "perf-res-103",
+        "perf-am-bbq",
+        "{{child}}",
+        "{{date:15}}",
+        "13:00",
+        "15:00",
+        3,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-5 days','+1352 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-5 days','+1352 minutes'))",
+      "params": [
+        "perf-res-104",
+        "perf-am-tennis",
+        "{{partner}}",
+        "{{date:16}}",
+        "16:00",
+        "18:00",
+        6,
+        "cancelled",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, notes, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-1 days','+1365 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-1 days','+1365 minutes'))",
+      "params": [
+        "perf-res-105",
+        "perf-am-guest",
+        "{{me}}",
+        "{{date:16}}",
+        "10:00",
+        "12:00",
+        0,
+        "Family visiting from out of town.",
+        "pending",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-2 days','+1378 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-2 days','+1378 minutes'))",
+      "params": [
+        "perf-res-106",
+        "perf-am-pickle",
+        "{{adult2}}",
+        "{{date:17}}",
+        "13:00",
+        "15:00",
+        3,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-3 days','+1391 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-3 days','+1391 minutes'))",
+      "params": [
+        "perf-res-107",
+        "perf-am-gym",
+        "{{child2}}",
+        "{{date:17}}",
+        "08:00",
+        "09:30",
+        6,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, notes, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-4 days','+1404 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-4 days','+1404 minutes'))",
+      "params": [
+        "perf-res-108",
+        "perf-am-tennis",
+        "{{me}}",
+        "{{date:17}}",
+        "16:00",
+        "18:00",
+        0,
+        "Birthday party, bringing our own decorations.",
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-5 days','+1417 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-5 days','+1417 minutes'))",
+      "params": [
+        "perf-res-109",
+        "perf-am-bbq",
+        "{{partner}}",
+        "{{date:18}}",
+        "16:00",
+        "18:00",
+        3,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-1 days','+1430 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-1 days','+1430 minutes'))",
+      "params": [
+        "perf-res-110",
+        "perf-am-pool",
+        "{{adult2}}",
+        "{{date:18}}",
+        "10:00",
+        "12:00",
+        6,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, notes, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-2 days','+1443 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-2 days','+1443 minutes'))",
+      "params": [
+        "perf-res-111",
+        "perf-am-guest",
+        "{{me}}",
+        "{{date:19}}",
+        "13:00",
+        "15:00",
+        0,
+        "Family visiting from out of town.",
+        "pending",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-3 days','+1456 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-3 days','+1456 minutes'))",
+      "params": [
+        "perf-res-112",
+        "perf-am-club",
+        "{{child}}",
+        "{{date:19}}",
+        "08:00",
+        "09:30",
+        3,
+        "pending",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reviews (reservation_id, decision, reviewed_by, reviewed_at) VALUES (?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-2 days','+1456 minutes'))",
+      "params": [
+        "perf-res-112",
+        "confirmed",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-4 days','+1469 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-4 days','+1469 minutes'))",
+      "params": [
+        "perf-res-113",
+        "perf-am-gym",
+        "{{partner}}",
+        "{{date:20}}",
+        "10:00",
+        "12:00",
+        6,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, notes, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-5 days','+1482 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-5 days','+1482 minutes'))",
+      "params": [
+        "perf-res-114",
+        "perf-am-tennis",
+        "{{me}}",
+        "{{date:20}}",
+        "18:30",
+        "20:30",
+        0,
+        "Birthday party, bringing our own decorations.",
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-1 days','+1495 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-1 days','+1495 minutes'))",
+      "params": [
+        "perf-res-115",
+        "perf-am-guest",
+        "{{adult2}}",
+        "{{date:20}}",
+        "13:00",
+        "15:00",
+        3,
+        "pending",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reviews (reservation_id, decision, reviewed_by, reviewed_at) VALUES (?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','0 days','+1495 minutes'))",
+      "params": [
+        "perf-res-115",
+        "confirmed",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-2 days','+1508 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-2 days','+1508 minutes'))",
+      "params": [
+        "perf-res-116",
+        "perf-am-pool",
+        "{{child2}}",
+        "{{date:21}}",
+        "13:00",
+        "15:00",
+        6,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, notes, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-3 days','+1521 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-3 days','+1521 minutes'))",
+      "params": [
+        "perf-res-117",
+        "perf-am-pickle",
+        "{{me}}",
+        "{{date:21}}",
+        "08:00",
+        "09:30",
+        0,
+        "Family visiting from out of town.",
+        "cancelled",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-4 days','+1534 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-4 days','+1534 minutes'))",
+      "params": [
+        "perf-res-118",
+        "perf-am-club",
+        "{{partner}}",
+        "{{date:22}}",
+        "10:00",
+        "12:00",
+        3,
+        "pending",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reviews (reservation_id, decision, reviewed_by, reviewed_at) VALUES (?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-3 days','+1534 minutes'))",
+      "params": [
+        "perf-res-118",
+        "confirmed",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-5 days','+1547 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-5 days','+1547 minutes'))",
+      "params": [
+        "perf-res-119",
+        "perf-am-bbq",
+        "{{adult2}}",
+        "{{date:22}}",
+        "18:30",
+        "20:30",
+        6,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, notes, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-1 days','+1560 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-1 days','+1560 minutes'))",
+      "params": [
+        "perf-res-120",
+        "perf-am-tennis",
+        "{{me}}",
+        "{{date:23}}",
+        "08:00",
+        "09:30",
+        0,
+        "Birthday party, bringing our own decorations.",
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-2 days','+1573 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-2 days','+1573 minutes'))",
+      "params": [
+        "perf-res-121",
+        "perf-am-guest",
+        "{{child}}",
+        "{{date:23}}",
+        "16:00",
+        "18:00",
+        3,
+        "pending",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reviews (reservation_id, decision, reviewed_by, reviewed_at) VALUES (?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-1 days','+1573 minutes'))",
+      "params": [
+        "perf-res-121",
+        "denied",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-3 days','+1586 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-3 days','+1586 minutes'))",
+      "params": [
+        "perf-res-122",
+        "perf-am-club",
+        "{{partner}}",
+        "{{date:23}}",
+        "10:00",
+        "12:00",
+        6,
+        "pending",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reviews (reservation_id, decision, reviewed_by, reviewed_at) VALUES (?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-2 days','+1586 minutes'))",
+      "params": [
+        "perf-res-122",
+        "confirmed",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, notes, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-4 days','+1599 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-4 days','+1599 minutes'))",
+      "params": [
+        "perf-res-123",
+        "perf-am-pickle",
+        "{{me}}",
+        "{{date:24}}",
+        "10:00",
+        "12:00",
+        0,
+        "Family visiting from out of town.",
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-5 days','+1612 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-5 days','+1612 minutes'))",
+      "params": [
+        "perf-res-124",
+        "perf-am-gym",
+        "{{adult2}}",
+        "{{date:24}}",
+        "18:30",
+        "20:30",
+        3,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-1 days','+1625 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-1 days','+1625 minutes'))",
+      "params": [
+        "perf-res-125",
+        "perf-am-bbq",
+        "{{child2}}",
+        "{{date:25}}",
+        "08:00",
+        "09:30",
+        6,
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, notes, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-2 days','+1638 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-2 days','+1638 minutes'))",
+      "params": [
+        "perf-res-126",
+        "perf-am-pool",
+        "{{me}}",
+        "{{date:25}}",
+        "16:00",
+        "18:00",
+        0,
+        "Birthday party, bringing our own decorations.",
+        "confirmed",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-3 days','+1651 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-3 days','+1651 minutes'))",
+      "params": [
+        "perf-res-127",
+        "perf-am-guest",
+        "{{partner}}",
+        "{{date:26}}",
+        "18:30",
+        "20:30",
+        3,
+        "pending",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reviews (reservation_id, decision, reviewed_by, reviewed_at) VALUES (?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-2 days','+1651 minutes'))",
+      "params": [
+        "perf-res-127",
+        "confirmed",
+        "{{partner}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-4 days','+1664 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-4 days','+1664 minutes'))",
+      "params": [
+        "perf-res-128",
+        "perf-am-club",
+        "{{adult2}}",
+        "{{date:26}}",
+        "13:00",
+        "15:00",
+        6,
+        "pending",
+        "everyone"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reviews (reservation_id, decision, reviewed_by, reviewed_at) VALUES (?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-3 days','+1664 minutes'))",
+      "params": [
+        "perf-res-128",
+        "confirmed",
+        "{{me}}"
+      ]
+    },
+    {
+      "sql": "INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, notes, status, visibility, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, strftime('%Y-%m-%dT%H:%M:%fZ','now','-5 days','+1677 minutes'), strftime('%Y-%m-%dT%H:%M:%fZ','now','-5 days','+1677 minutes'))",
+      "params": [
+        "perf-res-129",
+        "perf-am-bbq",
+        "{{me}}",
+        "{{date:26}}",
+        "08:00",
+        "09:30",
+        0,
+        "Family visiting from out of town.",
+        "confirmed",
+        "everyone"
+      ]
+    }
+  ]
+}
