@@ -229,6 +229,8 @@
 
     .empty   { text-align: center; padding: 36px 16px; color: var(--muted); font-size: 0.9rem; }
     .loading { text-align: center; padding: 40px; color: var(--muted); }
+    .load-error { margin: 0 0 12px; padding: 10px 14px; border-radius: 10px; background: var(--hub-tint-danger, #fee2e2); color: var(--hub-tint-danger-fg, #b91c1c); font-size: 0.9rem; display: flex; gap: 10px; align-items: center; justify-content: space-between; }
+    .load-error-retry { background: none; border: 1px solid currentColor; border-radius: 8px; padding: 5px 10px; font: inherit; font-weight: 600; color: inherit; cursor: pointer; flex-shrink: 0; }
     .search-row { margin-bottom: 12px; }
     .search-input {
       width: 100%; border: 1.5px solid var(--border-mid, var(--border, #d1d5db));
@@ -364,6 +366,10 @@ function showError(err) {
   errorTimer = setTimeout(() => { el.style.display = "none"; }, 6000);
 }
 
+// The hub answers 200 with `changed: 0` when a row policy leaves the caller no
+// row to write, so an optimistic write that changed nothing is a failure too.
+const mustChange = (message) => (res) => { if (res?.changed === 0) throw new Error(message); return res; };
+
 // ── Demo data ─────────────────────────────────────────────────────────────────
 
 const DEMO_AMENITIES = [
@@ -391,19 +397,20 @@ async function loadContext() {
     groups = [];
     return;
   }
-  try {
-    const res = await fetch(`${CONTEXT}?keys=family.members,family.groups`);
-    const data = await res.json();
-    members = data["family.members"] ?? [];
-    groups  = data["family.groups"]  ?? [];
-  } catch { members = []; groups = []; }
+  // A failed read throws: an empty roster would make every board check false.
+  const res = await fetch(`${CONTEXT}?keys=family.members,family.groups`);
+  const data = await res.json().catch(() => null);
+  if (!res.ok || data === null || typeof data !== "object" || Array.isArray(data)) throw new Error("Couldn’t reach the hub. Try again.");
+  // A 200 that names either key in `$errors` is the hub failing to read it.
+  if (Array.isArray(data.$errors) && data.$errors.some(k => k === "family.members" || k === "family.groups")) throw new Error("Couldn’t reach the hub. Try again.");
+  members = data["family.members"] ?? [];
+  groups  = data["family.groups"]  ?? [];
   memberMap = new Map(members.map(m => [m.id, m]));
 }
 
 async function loadSettings() {
-  // settings is adult_only — a child member's read is rejected (they're never board,
-  // so an empty board_group_id is the correct fallback). Guard against a missing
-  // rows array so that rejection is non-fatal.
+  // settings is app_config: every member may read it, so a rejected read is an
+  // outage, never "no board group". It throws to the caller.
   const r = await db(`SELECT value FROM app_amenity_reservations__settings WHERE key = 'board_group_id' LIMIT 1`);
   settings = { board_group_id: r.rows?.[0]?.value ?? "" };
 }
@@ -484,6 +491,11 @@ document.addEventListener("input", (e) => {
   if (next) { next.focus(); next.setSelectionRange(caret, caret); }
 });
 
+// True while the first load has not succeeded: the views would otherwise state
+// "No amenities configured yet" about data that was never read.
+let loadFailed = false;
+const LOAD_ERROR_HTML = `<div class="load-error" data-testid="load-error" role="alert"><span>Couldn’t load reservations.</span> <button type="button" class="load-error-retry" data-testid="load-retry">Try again</button></div>`;
+
 function render() {
   applyEffectiveStatus();
   const board = amIBoard();
@@ -491,7 +503,8 @@ function render() {
   document.getElementById("root").innerHTML = `
     ${renderHeader(board)}
     ${renderTabs(board, pendingCount)}
-    ${view === "amenities" ? renderAmenities(board)
+    ${loadFailed ? LOAD_ERROR_HTML
+    : view === "amenities" ? renderAmenities(board)
     : view === "detail"   ? renderDetail(board)
     : view === "mine"     ? renderMine()
     : view === "all"      ? renderAll()
@@ -1141,6 +1154,7 @@ window.cancelReservation = async function(id) {
   // (the board may cancel any via the board-group bypass).
   db(`UPDATE app_amenity_reservations__reservations SET status = 'cancelled', updated_at = ? WHERE id = ?`,
     [now, id]
+  ).then(mustChange("That reservation could not be cancelled.")
   ).catch((e) => { showError(e); reloadReservations(); });
 };
 
@@ -1314,7 +1328,8 @@ window.submitAmenity = async function(existingId) {
   }
   closeModal();
   render();
-  bgCall.catch((e) => { showError(e); loadAmenities().then(render); });
+  bgCall.then(mustChange("That amenity could not be changed. Only the board can edit amenities.")
+  ).catch((e) => { showError(e); loadAmenities().then(render); });
 };
 
 window.toggleActive = async function(id, currentlyActive) {
@@ -1325,6 +1340,7 @@ window.toggleActive = async function(id, currentlyActive) {
   render();
   db(`UPDATE app_amenity_reservations__amenities SET is_active=?, updated_at=? WHERE id=?`,
     [newVal, now, id]
+  ).then(mustChange("That amenity could not be changed. Only the board can edit amenities.")
   ).catch((e) => { showError(e); loadAmenities().then(render); });
 };
 
@@ -1336,7 +1352,9 @@ window.saveBoardGroup = async function(groupId) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ key: "board_group_id", value: groupId }),
-  }).catch(() => {});
+  }).then(async (res) => {
+    if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || "The board group could not be saved.");
+  }).catch((e) => { showError(e); loadSettings().then(render).catch(() => {}); });
 };
 
 // ── Modal ─────────────────────────────────────────────────────────────────────
@@ -1391,12 +1409,23 @@ async function reloadReservations() {
   render();
 }
 
-(async () => {
-  await Promise.all([loadContext(), loadSettings(), loadAmenities(), loadReservations(), loadReviews()]);
+async function firstLoad() {
+  try {
+    await Promise.all([loadContext(), loadSettings(), loadAmenities(), loadReservations(), loadReviews()]);
+    loadFailed = false;
+  } catch {
+    loadFailed = true;
+  }
   applyEffectiveStatus();
-  handleDeepLink();
   render();
-})();
+}
+
+document.addEventListener("click", (e) => {
+  if (e.target.closest('[data-testid="load-retry"]')) firstLoad();
+});
+
+handleDeepLink();
+firstLoad();
 </script>
 </body>
 </html>
