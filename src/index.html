@@ -348,8 +348,11 @@ const db = createDbHelper(DB);
  * authoritative state, and say why.
  */
 let errorTimer = null;
-function showError(err) {
-  const message = err?.message || "That change could not be saved.";
+function showError(err, line = "Couldn’t save — try again.") {
+  // Only this app's own wording (marked `forUser`) is shown; the hub's error
+  // text goes to the console.
+  if (!err?.forUser) console.error("[amenity-reservations] write failed:", err);
+  const message = err?.forUser ? err.message : line;
   let el = document.getElementById("app-error");
   if (!el) {
     el = document.createElement("div");
@@ -368,7 +371,7 @@ function showError(err) {
 
 // The hub answers 200 with `changed: 0` when a row policy leaves the caller no
 // row to write, so an optimistic write that changed nothing is a failure too.
-const mustChange = (message) => (res) => { if (res?.changed === 0) throw new Error(message); return res; };
+const mustChange = (message) => (res) => { if (res?.changed === 0) throw Object.assign(new Error(message), { forUser: true }); return res; };
 
 // ── Demo data ─────────────────────────────────────────────────────────────────
 
@@ -1109,7 +1112,7 @@ window.submitBooking = async function() {
     `INSERT INTO app_amenity_reservations__reservations (id, amenity_id, reserved_by, date, start_time, end_time, guest_count, notes, status, created_at, updated_at)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [id, a.id, ME.id, date, startTime, endTime, guests, notes, status, now, now]
-  ).catch((e) => { showError(e); reloadReservations(); });
+  ).catch((e) => { showError(e, "Couldn’t save the reservation — try again."); reloadReservations(); });
 
   // Reservations default to visibility 'everyone' - the amenity calendar is a
   // shared community board - so the bus audience matches the row policy.
@@ -1155,7 +1158,7 @@ window.cancelReservation = async function(id) {
   db(`UPDATE app_amenity_reservations__reservations SET status = 'cancelled', updated_at = ? WHERE id = ?`,
     [now, id]
   ).then(mustChange("That reservation could not be cancelled.")
-  ).catch((e) => { showError(e); reloadReservations(); });
+  ).catch((e) => { showError(e, "Couldn’t cancel the reservation — try again."); reloadReservations(); });
 };
 
 // ── Board approval actions ────────────────────────────────────────────────────
@@ -1175,7 +1178,7 @@ async function recordReview(id, decision) {
       sql: `INSERT INTO app_amenity_reservations__reviews (reservation_id, decision, reviewed_by, reviewed_at) VALUES (?, ?, ?, ?)`,
       params: [id, decision, ME.id, now],
     },
-  ]).then(() => true).catch((e) => { showError(e); reloadReservations(); return false; });
+  ]).then(() => true).catch((e) => { showError(e, "Couldn’t save the decision — try again."); reloadReservations(); return false; });
 }
 
 window.approveReservation = async function(id) {
@@ -1329,7 +1332,7 @@ window.submitAmenity = async function(existingId) {
   closeModal();
   render();
   bgCall.then(mustChange("That amenity could not be changed. Only the board can edit amenities.")
-  ).catch((e) => { showError(e); loadAmenities().then(render); });
+  ).catch((e) => { showError(e, "Couldn’t save the amenity — try again."); loadAmenities().then(render); });
 };
 
 window.toggleActive = async function(id, currentlyActive) {
@@ -1341,7 +1344,7 @@ window.toggleActive = async function(id, currentlyActive) {
   db(`UPDATE app_amenity_reservations__amenities SET is_active=?, updated_at=? WHERE id=?`,
     [newVal, now, id]
   ).then(mustChange("That amenity could not be changed. Only the board can edit amenities.")
-  ).catch((e) => { showError(e); loadAmenities().then(render); });
+  ).catch((e) => { showError(e, "Couldn’t save the amenity — try again."); loadAmenities().then(render); });
 };
 
 window.saveBoardGroup = async function(groupId) {
@@ -1354,7 +1357,7 @@ window.saveBoardGroup = async function(groupId) {
     body: JSON.stringify({ key: "board_group_id", value: groupId }),
   }).then(async (res) => {
     if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || "The board group could not be saved.");
-  }).catch((e) => { showError(e); loadSettings().then(render).catch(() => {}); });
+  }).catch((e) => { showError(e, "Couldn’t save the board group — try again."); loadSettings().then(render).catch(() => {}); });
 };
 
 // ── Modal ─────────────────────────────────────────────────────────────────────
