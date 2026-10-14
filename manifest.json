@@ -106,7 +106,6 @@
     ],
     "reviews": { "column": "reviewed_by", "on_removed": "keep" }
   },
-  "resource_limits": { "max_db_bytes": 52428800 },
   "nav": { "label": "Amenities" },
   "ai_access": {
     "allowed": true,
